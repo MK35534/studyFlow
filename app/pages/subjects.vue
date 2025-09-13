@@ -264,10 +264,13 @@ async function addSubject() {
 async function deleteSubject(id) {
   if (!confirm('Êtes-vous sûr de vouloir supprimer cette matière ?')) return
   
+
   try {
+    const token = localStorage.getItem('token')
     loading.value = true
     await $fetch(`/api/subjects/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
     })
     
     // Retirer de la liste locale

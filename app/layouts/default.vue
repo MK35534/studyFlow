@@ -49,15 +49,22 @@
         </nav>
       </div>
       
-      <!-- User section en bas -->
-      <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200">
-        <div class="flex items-center">
-          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-            <span class="text-white text-sm font-medium">U</span>
+      <!-- User section en bas - FIX pour éviter le scroll -->
+      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center flex-1 min-w-0">
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="text-white text-sm font-medium">U</span>
+            </div>
+            <div class="ml-3 min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">Utilisateur</p>
+              <p class="text-xs text-gray-500">Lycéen</p>
+            </div>
           </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium text-gray-900">Utilisateur</p>
-            <p class="text-xs text-gray-500">Lycéen</p>
+          
+          <!-- Notifications - positionnement fixe -->
+          <div class="flex-shrink-0 ml-2">
+            <NotificationBell :assignments="assignments" />
           </div>
         </div>
       </div>
@@ -71,3 +78,42 @@
     </main>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted, nextTick, onUnmounted } from 'vue'
+import NotificationBell from '~/components/NotificationBell.vue'
+
+// Données des devoirs pour les notifications
+const assignments = ref([])
+
+// Charger les devoirs pour les notifications
+async function loadAssignments() {
+  if (typeof window === 'undefined') return
+  
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) return
+    
+    const response = await $fetch('/api/assignments', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    assignments.value = response.data || []
+  } catch (error) {
+    console.error('Erreur chargement devoirs layout:', error)
+  }
+}
+
+// Actualiser les devoirs toutes les 5 minutes
+onMounted(() => {
+  nextTick(() => {
+    loadAssignments()
+    
+    // Actualisation périodique
+    const interval = setInterval(loadAssignments, 5 * 60 * 1000)
+    
+    onUnmounted(() => {
+      clearInterval(interval)
+    })
+  })
+})
+</script>
