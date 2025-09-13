@@ -1,7 +1,4 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss'],
-  experimental: {
-    treeshakeClientOnly: false
-  }
+  modules: ['@nuxtjs/tailwindcss']
 })
