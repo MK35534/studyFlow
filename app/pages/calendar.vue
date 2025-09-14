@@ -87,16 +87,22 @@
       </div>
       
       <!-- Grille du calendrier -->
+      <!-- Grille du calendrier -->
       <div class="grid grid-cols-7">
         <div
           v-for="day in calendarDays"
           :key="day.dateKey"
           :class="[
-            'min-h-[120px] border-r border-b border-gray-200 p-2',
+            'min-h-[120px] border-r border-b border-gray-200 p-2 transition-colors',
             !day.isCurrentMonth ? 'bg-gray-50' : 'bg-white',
             day.isToday ? 'bg-blue-50' : '',
-            'hover:bg-gray-50 transition-colors'
+            'hover:bg-gray-50',
+            dragOverDate === day.dateKey ? 'bg-blue-100 ring-2 ring-blue-300' : ''
           ]"
+          @dragover="allowDrop"
+          @dragenter="setDragOver(day.dateKey)"
+          @dragleave="clearDragOver"
+          @drop="handleDrop(day.date, $event)"
         >
           <!-- Numéro du jour -->
           <div class="flex justify-between items-start mb-2">
@@ -117,12 +123,16 @@
               v-for="assignment in getAssignmentsForDay(day.date)"
               :key="assignment.id"
               :class="[
-                'text-xs p-1 rounded truncate cursor-pointer transition-colors',
+                'text-xs p-1 rounded truncate cursor-grab transition-all hover:shadow-md',
                 assignment.is_completed 
-                  ? 'bg-green-100 text-green-700 line-through' 
-                  : getDayAssignmentClass(assignment)
+                  ? 'bg-green-100 text-green-700 line-through cursor-not-allowed' 
+                  : getDayAssignmentClass(assignment),
+                draggedAssignment?.id === assignment.id ? 'opacity-50 scale-95' : ''
               ]"
               :style="{ borderLeft: `3px solid ${assignment.subject_color}` }"
+              :draggable="!assignment.is_completed"
+              @dragstart="startDrag(assignment, $event)"
+              @dragend="endDrag"
               @click="openAssignmentModal(assignment)"
               :title="`${assignment.title} - ${assignment.subject_name}`"
             >
@@ -300,6 +310,11 @@ const currentView = ref('month')
 const currentDate = ref(new Date())
 const selectedAssignment = ref(null)
 
+// États pour le drag & drop
+const draggedAssignment = ref(null)
+const dragOverDate = ref(null)
+const isDragging = ref(false)
+
 // Constantes
 const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 const timeSlots = ['8h', '9h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', '19h', '20h']
@@ -386,19 +401,26 @@ function getAssignmentsForDay(date) {
   const day = String(date.getDate()).padStart(2, '0')
   const dateStr = `${year}-${month}-${day}`
   
-  console.log('Date recherchée (corrigée):', dateStr)
-  console.log('Devoirs disponibles:', assignments.value.map(a => ({ title: a.title, due_date: a.due_date })))
+  console.log('🔍 Recherche devoirs pour:', dateStr)
+  console.log('📅 Devoirs disponibles:', assignments.value.length)
+  
+  if (assignments.value.length > 0) {
+    console.log('📋 Exemple devoir:', assignments.value[0])
+  }
   
   const matchingAssignments = assignments.value.filter(assignment => {
-    // Aussi gérer le cas où due_date pourrait être un objet Date
     const assignmentDate = typeof assignment.due_date === 'string' 
-      ? assignment.due_date.split('T')[0]  // Si c'est une string datetime, prendre juste la date
+      ? assignment.due_date.split('T')[0]
       : assignment.due_date
       
-    return assignmentDate === dateStr
+    const match = assignmentDate === dateStr
+    if (match) {
+      console.log('✅ Match trouvé:', assignment.title, 'pour', dateStr)
+    }
+    return match
   })
   
-  console.log('Devoirs trouvés pour', dateStr, ':', matchingAssignments.length)
+  console.log(`📊 ${matchingAssignments.length} devoirs trouvés pour ${dateStr}`)
   
   return matchingAssignments.slice(0, currentView.value === 'month' ? 3 : 10)
 }
@@ -518,11 +540,14 @@ async function loadSubjects() {
 async function loadAssignments() {
   try {
     loading.value = true
+    console.log('🔄 Chargement devoirs calendrier...')
     const token = localStorage.getItem('token')
     const response = await $fetch('/api/assignments', {
       headers: { Authorization: `Bearer ${token}` }
     })
     assignments.value = response.data || []
+    console.log('✅ Devoirs chargés:', assignments.value.length)
+    console.log('📋 Premier devoir:', assignments.value[0])
   } catch (error) {
     console.error('Erreur chargement devoirs:', error)
     if (error.status === 401) {
@@ -531,6 +556,87 @@ async function loadAssignments() {
     }
   } finally {
     loading.value = false
+  }
+}
+
+// === FONCTIONS DRAG & DROP ===
+function startDrag(assignment, event) {
+  if (assignment.is_completed) return
+  
+  draggedAssignment.value = assignment
+  isDragging.value = true
+  
+  event.dataTransfer.setData('text/plain', assignment.id.toString())
+  event.dataTransfer.effectAllowed = 'move'
+  
+  console.log('Début drag:', assignment.title)
+}
+
+function endDrag() {
+  setTimeout(() => {
+    draggedAssignment.value = null
+    dragOverDate.value = null
+    isDragging.value = false
+  }, 100)
+}
+
+function allowDrop(event) {
+  event.preventDefault()
+  event.dataTransfer.dropEffect = 'move'
+}
+
+function setDragOver(dateKey) {
+  if (isDragging.value && draggedAssignment.value) {
+    dragOverDate.value = dateKey
+  }
+}
+
+function clearDragOver(event) {
+  if (!event.currentTarget.contains(event.relatedTarget)) {
+    dragOverDate.value = null
+  }
+}
+
+async function handleDrop(targetDate, event) {
+  event.preventDefault()
+  
+  if (!draggedAssignment.value) return
+  
+  const year = targetDate.getFullYear()
+  const month = String(targetDate.getMonth() + 1).padStart(2, '0')
+  const day = String(targetDate.getDate()).padStart(2, '0')
+  const newDateStr = `${year}-${month}-${day}`
+  
+  const assignment = draggedAssignment.value
+  
+  if (assignment.due_date === newDateStr) {
+    endDrag()
+    return
+  }
+  
+  try {
+    loading.value = true
+    
+    const token = localStorage.getItem('token')
+    const response = await $fetch(`/api/assignments/${assignment.id}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` },
+      body: { due_date: newDateStr }
+    })
+    
+    if (response.success) {
+      const assignmentIndex = assignments.value.findIndex(a => a.id === assignment.id)
+      if (assignmentIndex !== -1) {
+        assignments.value[assignmentIndex].due_date = newDateStr
+      }
+      console.log('✅ Devoir déplacé avec succès')
+    }
+  } catch (error) {
+    console.error('Erreur déplacement:', error)
+    alert('Erreur lors du déplacement')
+  } finally {
+    loading.value = false
+    endDrag()
   }
 }
 
