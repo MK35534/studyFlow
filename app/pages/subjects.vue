@@ -1,4 +1,5 @@
 <template>
+  <title>StudyFlow - Mes matières</title>
   <div>
     <!-- Header avec bouton d'ajout -->
     <div class="flex justify-between items-center mb-8">

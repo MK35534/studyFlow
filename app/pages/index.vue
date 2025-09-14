@@ -1,5 +1,6 @@
 <template>
   <div>
+    <title>StudyFlow - Tableau de bord</title>
     <!-- Header -->
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>

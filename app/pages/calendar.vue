@@ -1,4 +1,5 @@
 <template>
+  <title>StudyFlow - Calendrier</title>
   <div>
     <!-- Header avec navigation -->
     <div class="flex justify-between items-center mb-8">
