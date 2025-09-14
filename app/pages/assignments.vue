@@ -165,12 +165,14 @@
     <!-- Liste des devoirs -->
     <div v-else-if="filteredAssignments.length > 0" class="space-y-4">
       <div 
-        v-for="assignment in filteredAssignments" 
+        v-for="(assignment, index) in filteredAssignments" 
         :key="assignment.id"
         :class="[
-          'bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow',
+          'bg-white rounded-lg shadow-sm border p-6 transition-all duration-200 stagger-item',
+          'hover-lift hover:shadow-md',
           assignment.is_completed ? 'border-green-200 bg-green-50' : 'border-gray-200'
         ]"
+        :style="{ animationDelay: `${index * 0.05}s` }"
       >
         <div class="flex items-start justify-between">
           <div class="flex items-start space-x-4 flex-1">
@@ -260,28 +262,24 @@
       </div>
     </div>
 
-    <!-- État vide -->
-    <div v-else class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-      <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-      </svg>
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">
-        {{ currentFilter === 'completed' ? 'Aucun devoir terminé' : 
-           currentFilter === 'pending' ? 'Aucun devoir à faire' : 'Aucun devoir' }}
-      </h3>
-      <p class="text-gray-600 mb-6">
-        {{ currentFilter === 'all' ? 'Commence par ajouter ton premier devoir !' : 
-           'Change de filtre pour voir d\'autres devoirs.' }}
-      </p>
-      <button 
-        v-if="currentFilter === 'all' && subjects.length > 0"
-        @click="showAddForm = true"
-        :disabled="loading"
-        class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-      >
-        Ajouter mon premier devoir
-      </button>
-    </div>
+    <!-- État vide selon le filtre -->
+    <EmptyState
+      v-else
+      :title="currentFilter === 'completed' ? 'Aucun devoir terminé' : 
+            currentFilter === 'pending' ? 'Aucun devoir en attente' : 'Aucun devoir'"
+      :description="getEmptyDescription()"
+      :emoji="getEmptyEmoji()"
+      :primary-action="currentFilter === 'all' && subjects.length > 0 ? {
+        text: 'Créer mon premier devoir',
+        icon: 'M12 4v16m8-8H4'
+      } : null"
+      :secondary-action="currentFilter !== 'all' ? {
+        text: 'Voir tous les devoirs'
+      } : null"
+      :tips="getEmptyTips()"
+      @primary-action="showAddForm = true"
+      @secondary-action="currentFilter = 'all'"
+    />
   </div>
 </template>
 
@@ -442,7 +440,26 @@ async function addAssignment() {
     })
     
     if (response.success) {
-      assignments.value.unshift(response.data)
+       assignments.value.unshift(response.data)
+  
+      const { success } = useToast()
+      const dueDate = new Date(newAssignment.due_date)
+      const isToday = dueDate.toDateString() === new Date().toDateString()
+      const isTomorrow = dueDate.toDateString() === new Date(Date.now() + 86400000).toDateString()
+      
+      let message = ''
+      if (isToday) {
+        message = '⚡ À faire aujourd\'hui !'
+      } else if (isTomorrow) {
+        message = '🔔 À faire demain'
+      } else {
+        message = `📅 Échéance: ${formatDueDate(newAssignment.due_date)}`
+      }
+      
+      success(
+        `Devoir "${newAssignment.title}" créé !`,
+        message
+      )
       
       // Reset du formulaire
       newAssignment.title = ''
@@ -510,6 +527,42 @@ function cancelAdd() {
   newAssignment.due_date = ''
   newAssignment.description = ''
   showAddForm.value = false
+}
+
+// Méthodes pour l'état vide
+function getEmptyDescription() {
+  if (currentFilter.value === 'completed') {
+    return 'Aucun devoir terminé pour le moment. Continue ton excellent travail !'
+  } else if (currentFilter.value === 'pending') {
+    return 'Parfait ! Aucun devoir en attente. Tu es à jour dans tes révisions.'
+  } else if (subjects.value.length === 0) {
+    return 'Tu dois d\'abord créer des matières pour pouvoir ajouter des devoirs.'
+  } else {
+    return 'Commence par ajouter tes premiers devoirs pour organiser ton travail scolaire.'
+  }
+}
+
+function getEmptyEmoji() {
+  if (currentFilter.value === 'completed') return '🎉'
+  if (currentFilter.value === 'pending') return '✨'
+  return '📝'
+}
+
+function getEmptyTips() {
+  if (currentFilter.value !== 'all') return []
+  
+  if (subjects.value.length === 0) {
+    return [
+      'Crée d\'abord tes matières dans la section "Matières"',
+      'Puis reviens ici pour ajouter tes devoirs'
+    ]
+  }
+  
+  return [
+    'Double-clic sur une date du calendrier pour créer rapidement',
+    'Utilise la palette de commandes (Ctrl+K) pour aller plus vite',
+    'Les devoirs en retard apparaissent en rouge pour plus de visibilité'
+  ]
 }
 
 // Charger les données au montage

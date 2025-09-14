@@ -2,7 +2,7 @@
   <title>StudyFlow - Mes matières</title>
   <div>
     <!-- Header avec bouton d'ajout -->
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex justify-between items-center mb-8 slide-up-enter-active">
       <div>
         <h1 class="text-3xl font-bold text-gray-900">Mes matières</h1>
         <p class="text-gray-600 mt-2">Organise tes cours par matière</p>
@@ -10,7 +10,7 @@
       <button 
         @click="showAddForm = true"
         :disabled="loading"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50"
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center btn-animate disabled:opacity-50"
       >
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -87,9 +87,14 @@
     <!-- Liste des matières -->
     <div v-else-if="subjects.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div 
-        v-for="subject in subjects" 
+        v-for="(subject, index) in subjects" 
         :key="subject.id"
-        class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+        :class="[
+          'bg-white rounded-lg shadow-sm border border-gray-200 p-6 transition-all duration-200',
+          'hover-lift card-hover stagger-item',
+          'hover:shadow-lg hover:border-blue-200'
+        ]"
+        :style="{ animationDelay: `${index * 0.1}s` }"
       >
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center">
@@ -117,21 +122,23 @@
       </div>
     </div>
 
-    <!-- État vide -->
-    <div v-else class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-      <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-      </svg>
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">Aucune matière</h3>
-      <p class="text-gray-600 mb-6">Commence par ajouter tes premières matières pour organiser tes cours</p>
-      <button 
-        @click="showAddForm = true"
-        :disabled="loading"
-        class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-      >
-        Ajouter ma première matière
-      </button>
-    </div>
+    <!-- État vide amélioré -->
+    <EmptyState
+      v-else
+      title="Aucune matière"
+      description="Commence par créer tes premières matières pour organiser tes cours et devoirs par discipline."
+      emoji="📚"
+      :primary-action="{
+        text: 'Créer ma première matière',
+        icon: 'M12 4v16m8-8H4'
+      }"
+      :tips="[
+        'Utilise des couleurs différentes pour mieux identifier tes matières',
+        'Raccourci clavier: appuie sur S pour créer rapidement',
+        'Tu peux modifier le nom et la couleur à tout moment'
+      ]"
+      @primary-action="showAddForm = true"
+    />
   </div>
 </template>
 
@@ -240,7 +247,14 @@ async function addSubject() {
     console.log('Réponse POST:', response)
     
     if (response.success) {
-      subjects.value.unshift(response.data) // Ajouter en début de liste
+      subjects.value.unshift(response.data)
+      
+      // Toast contextuel amélioré
+      const { success } = useToast()
+      success(
+        `Matière "${newSubject.name.trim()}" créée !`,
+        'Tu peux maintenant y ajouter des devoirs'
+      )
       
       // Reset du formulaire
       newSubject.name = ''

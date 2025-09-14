@@ -1,4 +1,9 @@
+import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss']
+  vite: {
+    plugins: [tsconfigPaths()],
+  },
+  modules: ['@nuxtjs/tailwindcss'],
+  css: ['@/assets/css/main.css']
 })

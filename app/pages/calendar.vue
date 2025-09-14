@@ -62,7 +62,7 @@
         <!-- Bouton aujourd'hui -->
         <button
           @click="goToToday"
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors btn-animate"
         >
           Aujourd'hui
         </button>
@@ -70,9 +70,11 @@
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="text-center py-12">
-      <p class="text-gray-500">Chargement du calendrier...</p>
-    </div>
+    <LoadingSpinner v-if="loading && assignments.length === 0" 
+      type="skeleton" 
+      message="Chargement du calendrier..." 
+      size="large" 
+    />
 
     <!-- Vue mensuelle -->
     <div v-else-if="currentView === 'month'" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -94,7 +96,7 @@
           v-for="day in calendarDays"
           :key="day.dateKey"
           :class="[
-            'min-h-[120px] border-r border-b border-gray-200 p-2 transition-colors',
+            'min-h-[120px] border-r border-b border-gray-200 p-2 transition-colors cursor-pointer',
             !day.isCurrentMonth ? 'bg-gray-50' : 'bg-white',
             day.isToday ? 'bg-blue-50' : '',
             'hover:bg-gray-50',
@@ -104,6 +106,8 @@
           @dragenter="setDragOver(day.dateKey)"
           @dragleave="clearDragOver"
           @drop="handleDrop(day.date, $event)"
+          @dblclick="openQuickCreateModal(day.date)"
+          :title="!day.isCurrentMonth ? '' : 'Double-clic pour ajouter un devoir'"
         >
           <!-- Numéro du jour -->
           <div class="flex justify-between items-start mb-2">
@@ -298,10 +302,27 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal de création rapide -->
+  <QuickAssignmentModal
+    :show="showQuickModal"
+    :selected-date="quickModalDate"
+    :subjects="subjects"
+    @close="closeQuickModal"
+    @created="handleQuickAssignmentCreated"
+  />
 </template>
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
+import { useToast } from '~/composables/useToats'
+import  LoadingSpinner  from '~/components/LoadingSpinner.vue'
+import QuickAssignmentModal from '~/components/QuickAssignmentModal.vue'
+const { succes, error } = useToast()
+
+// États pour la création rapide
+const showQuickModal = ref(false)
+const quickModalDate = ref(null)
 
 // États réactifs
 const assignments = ref([])
@@ -630,15 +651,49 @@ async function handleDrop(targetDate, event) {
       if (assignmentIndex !== -1) {
         assignments.value[assignmentIndex].due_date = newDateStr
       }
-      console.log('✅ Devoir déplacé avec succès')
+      
+      // 🎉 Toast au lieu de console.log
+      const { success } = useToast()
+      success(
+        'Devoir déplacé !', 
+        `"${assignment.title}" maintenant prévu le ${formatFullDate(newDateStr)}`
+      )
     }
   } catch (error) {
     console.error('Erreur déplacement:', error)
-    alert('Erreur lors du déplacement')
+    
+    // 🚨 Toast d'erreur au lieu d'alert
+    const { error: errorToast } = useToast()
+    errorToast(
+      'Erreur de déplacement',
+      'Impossible de déplacer le devoir. Réessayez.'
+    )
   } finally {
     loading.value = false
     endDrag()
   }
+}
+
+// Fonctions pour création rapide
+function openQuickCreateModal(date) {
+  if (subjects.value.length === 0) {
+    const { warning } = useToast()
+    warning('Aucune matière', 'Créez d\'abord des matières avant d\'ajouter des devoirs')
+    return
+  }
+  
+  quickModalDate.value = new Date(date)
+  showQuickModal.value = true
+}
+
+function closeQuickModal() {
+  showQuickModal.value = false
+  quickModalDate.value = null
+}
+
+function handleQuickAssignmentCreated(newAssignment) {
+  // Ajouter le nouveau devoir à la liste
+  assignments.value.unshift(newAssignment)
 }
 
 // Initialisation
