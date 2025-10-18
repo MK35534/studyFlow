@@ -48,17 +48,19 @@ export default defineEventHandler(async (event) => {
     }
 
     // Vérifier que le tag appartient à l'utilisateur
-    const tag = await executeQuery(
-      'SELECT id FROM tags WHERE id = ? AND user_id = ?',
+    const tagResult = await executeQuery(
+      'SELECT id, name, color FROM tags WHERE id = ? AND user_id = ?',
       [tag_id, payload.userId]
     )
 
-    if (tag.length === 0) {
+    if (tagResult.length === 0) {
       throw createError({
         statusCode: 404,
         message: 'Tag non trouvé'
       })
     }
+
+    const tag = tagResult[0]
 
     // Vérifier si l'association existe déjà
     const existing = await executeQuery(
@@ -69,7 +71,8 @@ export default defineEventHandler(async (event) => {
     if (existing.length > 0) {
       return {
         success: true,
-        message: 'Tag déjà associé au devoir'
+        message: 'Tag déjà associé au devoir',
+        tag // Retourner le tag même s'il existe déjà
       }
     }
 
@@ -81,7 +84,8 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: 'Tag ajouté au devoir avec succès'
+      message: 'Tag ajouté au devoir avec succès',
+      tag // Retourner le tag complet avec id, name, color
     }
 
   } catch (error) {

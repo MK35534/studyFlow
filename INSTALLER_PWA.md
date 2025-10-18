@@ -8,22 +8,37 @@ Une **Progressive Web App** = ton site web installé comme une vraie application
 ## 🖥️ Installation sur PC (Windows/Mac/Linux)
 
 ### 1️⃣ Sur Chrome/Edge
+
+**Option A : Via la popup automatique (après 5 secondes)**
 1. **Ouvre** `http://localhost:3000`
-2. Attends **3 secondes**, une popup apparaît en bas à droite :
+2. **Attends 5 secondes**, une popup apparaît en bas à droite :
    ```
    📱 Installer StudyFlow
    Accédez rapidement à vos devoirs depuis votre écran d'accueil
    ✅ Fonctionne hors ligne
    ✅ Notifications des devoirs
    ✅ Accès rapide depuis l'écran d'accueil
+   
+   Sur Chrome/Edge (desktop) :
+   1. Cherchez l'icône ⊕ dans la barre d'adresse (à droite)
+   2. Cliquez sur "Installer StudyFlow"
+   3. L'application s'ouvrira dans une fenêtre séparée
+   
    [Installer] [Plus tard]
    ```
-3. **Clique sur "Installer"**
-4. L'appli s'installe et s'ouvre dans une fenêtre séparée (sans barre d'adresse)
 
-**Alternative manuelle :**
-- Regarde dans la **barre d'adresse** à droite → **icône ⊕ (plus)** ou **icône d'installation**
-- Clique dessus → "Installer StudyFlow"
+**Option B : Installation manuelle**
+1. Regarde dans la **barre d'adresse** à droite → **icône ⊕ (ordinateur avec flèche)**
+2. Clique dessus → "Installer StudyFlow"
+3. Une fenêtre de confirmation apparaît → Clique "Installer"
+4. ✅ L'app s'ouvre dans une fenêtre séparée (sans barre d'adresse)
+
+**Si l'icône ⊕ n'apparaît pas :**
+- Vérifie que tu es sur **Chrome/Edge** (Firefox ne supporte pas bien les PWA desktop)
+- Vérifie que le serveur tourne (`npm run dev`)
+- Ouvre les **DevTools (F12)** → Onglet **"Application"** → Section **"Manifest"**
+  - Tu dois voir le manifest avec les icônes
+  - Si erreur, regarde la console pour les détails
 
 ---
 

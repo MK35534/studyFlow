@@ -14,6 +14,39 @@ import { useWindowSize } from "@vueuse/core";
 import { useTheme } from '~/composables/useTheme';
 import { onMounted, ref } from 'vue';
 
+// Configuration du manifest PWA
+useHead({
+  link: [
+    {
+      rel: 'manifest',
+      href: '/manifest.webmanifest'
+    },
+    {
+      rel: 'apple-touch-icon',
+      sizes: '180x180',
+      href: '/icons/icon-192x192.png'
+    }
+  ],
+  meta: [
+    {
+      name: 'theme-color',
+      content: '#3b82f6'
+    },
+    {
+      name: 'apple-mobile-web-app-capable',
+      content: 'yes'
+    },
+    {
+      name: 'apple-mobile-web-app-status-bar-style',
+      content: 'default'
+    },
+    {
+      name: 'mobile-web-app-capable',
+      content: 'yes'
+    }
+  ]
+})
+
 const { width } = useWindowSize();
 
 const layout = computed(() => {

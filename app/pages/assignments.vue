@@ -308,13 +308,16 @@
                 <span
                   v-for="tag in assignment.tags"
                   :key="tag.id"
-                  class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold text-white shadow-sm transition-transform hover:scale-105"
-                  :style="{ backgroundColor: tag.color }"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all hover:scale-105 hover:shadow-md"
+                  :style="{ 
+                    backgroundColor: tag.color || '#6b7280',
+                    color: isLightColor(tag.color) ? '#1f2937' : '#ffffff'
+                  }"
                 >
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                   </svg>
-                  {{ tag.name }}
+                  {{ tag.name || 'Sans nom' }}
                 </span>
               </div>
             </div>
@@ -416,6 +419,23 @@ function getSubjectName(subjectId) {
 function getSubjectColor(subjectId) {
   const subject = subjects.value.find(s => s.id === subjectId)
   return subject ? subject.color : '#6B7280'
+}
+
+// Calculer si une couleur est claire (pour le contraste du texte)
+function isLightColor(hexColor) {
+  if (!hexColor || !hexColor.startsWith('#')) return false
+  
+  // Convertir hex en RGB
+  const hex = hexColor.replace('#', '')
+  const r = parseInt(hex.substr(0, 2), 16)
+  const g = parseInt(hex.substr(2, 2), 16)
+  const b = parseInt(hex.substr(4, 2), 16)
+  
+  // Calculer la luminosité (formule standard)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  
+  // Si luminosité > 0.5 → couleur claire → texte noir
+  return luminance > 0.5
 }
 
 function formatDueDate(dateString) {
@@ -537,19 +557,46 @@ async function addAssignment() {
       
       // Associer les tags au devoir si des tags ont été sélectionnés
       if (newAssignment.tags && newAssignment.tags.length > 0) {
+        const associatedTags = []
+        
         for (const tagId of newAssignment.tags) {
           try {
-            await $fetch(`/api/assignments/${newAssignmentData.id}/tags`, {
+            const tagResponse = await $fetch(`/api/assignments/${newAssignmentData.id}/tags`, {
               method: 'POST',
               headers: { Authorization: `Bearer ${token}` },
               body: { tag_id: tagId }
             })
+            
+            // Si l'API retourne le tag complet, on l'ajoute
+            if (tagResponse.success && tagResponse.tag) {
+              associatedTags.push(tagResponse.tag)
+            }
           } catch (tagError) {
             console.error('Erreur association tag:', tagError)
           }
         }
-        // Ajouter les tags au devoir pour l'affichage
-        newAssignmentData.tags = newAssignment.tags
+        
+        // Si on a des tags associés, les ajouter au devoir
+        if (associatedTags.length > 0) {
+          newAssignmentData.tags = associatedTags
+        } else {
+          // Sinon, recharger le devoir pour obtenir les tags complets
+          try {
+            const reloadResponse = await $fetch(`/api/assignments/${newAssignmentData.id}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+            if (reloadResponse.success && reloadResponse.data.tags) {
+              newAssignmentData.tags = reloadResponse.data.tags
+            } else {
+              newAssignmentData.tags = []
+            }
+          } catch (reloadError) {
+            console.error('Erreur rechargement devoir:', reloadError)
+            newAssignmentData.tags = []
+          }
+        }
+      } else {
+        newAssignmentData.tags = []
       }
       
       assignments.value.unshift(newAssignmentData)

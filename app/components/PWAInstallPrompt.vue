@@ -75,6 +75,18 @@
           <li>3. Appuyez sur "Ajouter"</li>
         </ol>
       </div>
+
+      <!-- Instructions Chrome Desktop -->
+      <div v-if="!isIOS && !deferredPrompt" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <p class="text-xs text-gray-600 dark:text-gray-400 mb-2 font-medium">
+          Sur Chrome/Edge (desktop) :
+        </p>
+        <ol class="text-xs text-gray-600 dark:text-gray-400 space-y-1 pl-4">
+          <li>1. Cherchez l'icône <span class="inline-flex items-center mx-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded"><svg class="w-3 h-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg></span> dans la barre d'adresse (à droite)</li>
+          <li>2. Cliquez sur "Installer StudyFlow"</li>
+          <li>3. L'application s'ouvrira dans une fenêtre séparée</li>
+        </ol>
+      </div>
     </div>
   </div>
 </template>
@@ -130,6 +142,14 @@ onMounted(() => {
       showInstallPrompt.value = true
     }, 3000)
   })
+
+  // Si après 5 secondes il n'y a pas de beforeinstallprompt (desktop Chrome)
+  // Afficher quand même les instructions
+  setTimeout(() => {
+    if (!deferredPrompt.value && !showInstallPrompt.value && !isIOS.value) {
+      showInstallPrompt.value = true
+    }
+  }, 5000)
 
   // Écouter l'installation réussie
   window.addEventListener('appinstalled', () => {
