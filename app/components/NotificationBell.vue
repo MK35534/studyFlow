@@ -56,8 +56,16 @@ const handleUpdate = (newUnreadCount) => {
 // Charger le compteur initial
 const loadUnreadCount = async () => {
   try {
+    // Vérifier si on est côté client
+    if (process.server) return
+    
     const token = localStorage.getItem('token')
-    if (!token) return
+    
+    // Si pas de token, pas de requête
+    if (!token || token === 'null' || token === 'undefined') {
+      console.warn('⚠️ Pas de token JWT trouvé pour les notifications')
+      return
+    }
 
     const response = await $fetch('/api/notifications?unread_only=true&limit=100', {
       headers: {
@@ -71,6 +79,12 @@ const loadUnreadCount = async () => {
     }
   } catch (error) {
     console.error('Erreur chargement compteur notifications:', error)
+    
+    // Si erreur JWT, vider le token corrompu
+    if (error.message?.includes('jwt') || error.message?.includes('malformed')) {
+      console.warn('⚠️ Token JWT invalide, nettoyage...')
+      localStorage.removeItem('token')
+    }
   }
 }
 
@@ -85,11 +99,17 @@ const checkForUrgent = (notifications = null) => {
 let refreshInterval = null
 
 onMounted(() => {
-  loadUnreadCount()
-  
-  // Rafraîchir le compteur régulièrement
-  refreshInterval = setInterval(() => {
+  // Attendre un peu avant le premier chargement (laisser le temps au token de se charger)
+  setTimeout(() => {
     loadUnreadCount()
+  }, 500)
+  
+  // Rafraîchir le compteur régulièrement (seulement si connecté)
+  refreshInterval = setInterval(() => {
+    const token = localStorage.getItem('token')
+    if (token && token !== 'null' && token !== 'undefined') {
+      loadUnreadCount()
+    }
   }, 30000) // 30 secondes
 })
 
