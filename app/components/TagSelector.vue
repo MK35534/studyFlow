@@ -37,7 +37,7 @@
       <!-- Palette de couleurs moderne -->
       <div class="mt-3">
         <p class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Choisir une couleur :</p>
-        <div class="grid grid-cols-8 gap-2">
+        <div class="grid grid-cols-6 sm:grid-cols-8 gap-2">
           <button
             v-for="color in colorPalette"
             :key="color"

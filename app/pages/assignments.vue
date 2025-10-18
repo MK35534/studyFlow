@@ -145,7 +145,7 @@
             <TagSelector v-model="newAssignment.tags" @manage-tags="navigateTo('/subjects')" />
           </div>
 
-          <div class="flex gap-3 pt-2">
+          <div class="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="submit"
               :disabled="loading"
@@ -157,7 +157,7 @@
               type="button"
               @click="cancelAdd"
               :disabled="loading"
-              class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all disabled:opacity-50 font-medium"
+              class="sm:flex-shrink-0 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all disabled:opacity-50 font-medium"
             >
               Annuler
             </button>
@@ -492,20 +492,15 @@ async function loadAssignments() {
       headers: { Authorization: `Bearer ${token}` }
     })
     
+    // Les tags sont maintenant inclus directement dans la réponse
     const assignmentsData = response.data || []
     
-    // Charger les tags pour chaque devoir
-    for (const assignment of assignmentsData) {
-      try {
-        const tagsResponse = await $fetch(`/api/assignments/${assignment.id}/tags`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        assignment.tags = tagsResponse.tags || []
-      } catch (tagError) {
-        console.error(`Erreur chargement tags pour devoir ${assignment.id}:`, tagError)
+    // S'assurer que chaque devoir a un tableau de tags (même vide)
+    assignmentsData.forEach(assignment => {
+      if (!assignment.tags) {
         assignment.tags = []
       }
-    }
+    })
     
     assignments.value = assignmentsData
   } catch (error) {
