@@ -1,10 +1,14 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    overflow-x: hidden;
   }
 }
 
@@ -89,4 +93,131 @@
 @keyframes skeleton-loading {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* === ANIMATIONS FOCUS PAGE === */
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes rotate-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotate-slow {
+  animation: rotate-slow 20s linear infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.gradient-animate {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* === FOCUS MODE === */
+.focus-mode {
+  filter: grayscale(50%) blur(1px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.focus-mode-active {
+  filter: none;
+  pointer-events: auto;
+  user-select: auto;
+}
+
+/* === MOBILE TOUCH OPTIMIZATIONS === */
+
+/* Bottom Navigation - design floating moderne */
+nav .pointer-events-auto {
+  will-change: transform;
+  animation: slideUpNav 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUpNav {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Effet ripple pour feedback tactile */
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-animation 600ms ease-out;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Conteneur pour effet ripple */
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Optimisation du touch (empêche le highlight sur mobile) */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Pull-to-refresh indicator */
+.pull-to-refresh-indicator {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Swipe-to-delete */
+.swipe-delete-container {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.swipe-delete-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to left, #ef4444, #dc2626);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 1.5rem;
+  color: white;
+  font-weight: 600;
 }

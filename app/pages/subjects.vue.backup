@@ -1,0 +1,345 @@
+<template>
+  <title>StudyFlow - Mes matières</title>
+  <div class="min-h-screen">
+    <!-- Header moderne avec dégradé -->
+    <div class="mb-8 md:mb-12">
+      <div class="relative">
+        <div class="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl opacity-50 blur-3xl"></div>
+        <div class="relative flex justify-between items-start gap-4">
+          <div class="flex-1">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Mes matières</h1>
+            <p class="text-gray-600 text-base md:text-lg">Organise tes cours par discipline</p>
+          </div>
+          <button 
+            @click="showAddForm = true"
+            :disabled="loading"
+            class="group relative overflow-hidden bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 flex items-center gap-2 disabled:opacity-50 shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 hover:-translate-y-0.5"
+          >
+            <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            <svg class="w-5 h-5 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span class="font-semibold relative hidden md:inline">Ajouter une matière</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire d'ajout moderne -->
+    <div v-if="showAddForm" class="relative overflow-hidden bg-gradient-to-br from-white to-green-50/30 rounded-2xl border border-gray-200 p-6 md:p-8 mb-8 shadow-lg">
+      <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-100 to-transparent rounded-full blur-3xl opacity-30"></div>
+      <div class="relative">
+        <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+          <span class="p-2.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </span>
+          Nouvelle matière
+        </h3>
+        <form @submit.prevent="addSubject" class="space-y-5">
+          <div>
+            <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">
+              Nom de la matière
+            </label>
+            <input
+              type="text"
+              id="name"
+              v-model="newSubject.name"
+              placeholder="Ex: Mathématiques, Histoire..."
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              required
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-3">
+              Couleur
+            </label>
+            <div class="flex gap-3 flex-wrap">
+              <button
+                v-for="color in availableColors"
+                :key="color.value"
+                type="button"
+                @click="newSubject.color = color.value"
+                :class="[
+                  'w-12 h-12 rounded-xl border-3 transition-all duration-200 hover:scale-110',
+                  newSubject.color === color.value 
+                    ? 'border-gray-900 scale-110 ring-4 ring-offset-2' 
+                    : 'border-transparent hover:border-gray-300'
+                ]"
+                :style="{ 
+                  backgroundColor: color.value,
+                  ringColor: color.value + '40'
+                }"
+                :title="color.name"
+              />
+            </div>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button
+              type="submit"
+              :disabled="loading"
+              class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 disabled:opacity-50 font-semibold shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 hover:-translate-y-0.5"
+            >
+              {{ loading ? 'Création...' : 'Créer la matière' }}
+            </button>
+            <button
+              type="button"
+              @click="cancelAdd"
+              :disabled="loading"
+              class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all disabled:opacity-50 font-medium"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div v-if="loading && subjects.length === 0" class="text-center py-12">
+      <div class="inline-block w-12 h-12 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-500 font-medium">Chargement des matières...</p>
+    </div>
+
+    <!-- Liste des matières - Design moderne -->
+    <div v-else-if="subjects.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div 
+        v-for="(subject, index) in subjects" 
+        :key="subject.id"
+        class="group relative overflow-hidden bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 hover:border-gray-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+        :style="{ animationDelay: `${index * 0.1}s` }"
+      >
+        <div 
+          class="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20"
+          :style="{ background: `linear-gradient(135deg, ${subject.color}, transparent)` }"
+        ></div>
+        <div class="relative p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <div 
+                class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ring-4 ring-white"
+                :style="{ backgroundColor: subject.color }"
+              >
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 truncate">{{ subject.name }}</h3>
+            </div>
+            <button
+              @click="deleteSubject(subject.id)"
+              :disabled="loading"
+              class="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all disabled:opacity-50 flex-shrink-0 group/delete"
+            >
+              <svg class="w-5 h-5 group-hover/delete:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+          
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 text-sm text-gray-600">
+              <div class="p-1.5 bg-gray-100 rounded-lg">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <span class="font-medium">0 devoir en cours</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-gray-500">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>Créée le {{ formatDate(subject.created_at) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- État vide amélioré -->
+    <EmptyState
+      v-else
+      title="Aucune matière"
+      description="Commence par créer tes premières matières pour organiser tes cours et devoirs par discipline."
+      emoji="📚"
+      :primary-action="{
+        text: 'Créer ma première matière',
+        icon: 'M12 4v16m8-8H4'
+      }"
+      :tips="[
+        'Utilise des couleurs différentes pour mieux identifier tes matières',
+        'Raccourci clavier: appuie sur S pour créer rapidement',
+        'Tu peux modifier le nom et la couleur à tout moment'
+      ]"
+      @primary-action="showAddForm = true"
+    />
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, onMounted, nextTick } from 'vue'
+
+// Données réactives
+const subjects = ref([])
+const showAddForm = ref(false)
+const loading = ref(false)
+const newSubject = reactive({
+  name: '',
+  color: '#3B82F6'
+})
+
+// Couleurs disponibles
+const availableColors = [
+  { name: 'Bleu', value: '#3B82F6' },
+  { name: 'Vert', value: '#10B981' },
+  { name: 'Rouge', value: '#EF4444' },
+  { name: 'Orange', value: '#F97316' },
+  { name: 'Violet', value: '#8B5CF6' },
+  { name: 'Rose', value: '#EC4899' },
+  { name: 'Indigo', value: '#6366F1' },
+  { name: 'Jaune', value: '#F59E0B' }
+]
+
+// Charger les matières depuis l'API
+async function loadSubjects() {
+  try {
+    loading.value = true
+    
+    if (typeof window === 'undefined') {
+      return
+    }
+    
+    const token = localStorage.getItem('token')
+    
+    if (!token) {
+      await navigateTo('/login')
+      return
+    }
+    
+    const response = await $fetch('/api/subjects', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    
+    subjects.value = response.data || []
+  } catch (error) {
+    console.error('Erreur chargement matières:', error)
+    
+    if (error.status === 401 || error.statusCode === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      await navigateTo('/login')
+    } else {
+      const { error: errorToast } = useToast()
+      errorToast('Erreur', 'Impossible de charger les matières')
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+// Ajouter une matière via l'API
+async function addSubject() {
+  if (!newSubject.name.trim()) return
+  
+  try {
+    loading.value = true
+    
+    const token = localStorage.getItem('token')
+    if (!token) {
+      await navigateTo('/login')
+      return
+    }
+    
+    const response = await $fetch('/api/subjects', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        name: newSubject.name.trim(),
+        color: newSubject.color
+      }
+    })
+    
+    if (response.success) {
+      subjects.value.unshift(response.data)
+      
+      // Toast contextuel amélioré
+      const { success } = useToast()
+      success(
+        `Matière "${newSubject.name.trim()}" créée !`,
+        'Tu peux maintenant y ajouter des devoirs'
+      )
+      
+      // Reset du formulaire
+      newSubject.name = ''
+      newSubject.color = '#3B82F6'
+      showAddForm.value = false
+    }
+  } catch (error) {
+    console.error('Erreur lors de la création:', error)
+    if (error.status === 401 || error.statusCode === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      await navigateTo('/login')
+    } else {
+      const { error: errorToast } = useToast()
+      errorToast('Erreur', 'Impossible de créer la matière')
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+// Supprimer une matière via l'API
+async function deleteSubject(id) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cette matière ?')) return
+  
+  try {
+    const token = localStorage.getItem('token')
+    loading.value = true
+    await $fetch(`/api/subjects/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    
+    // Retirer de la liste locale
+    subjects.value = subjects.value.filter(subject => subject.id !== id)
+    
+    const { success } = useToast()
+    success('Matière supprimée', 'La matière a été supprimée avec succès')
+  } catch (error) {
+    console.error('Erreur lors de la suppression:', error)
+    const { error: errorToast } = useToast()
+    errorToast('Erreur', 'Impossible de supprimer la matière')
+  } finally {
+    loading.value = false
+  }
+}
+
+function cancelAdd() {
+  newSubject.name = ''
+  newSubject.color = '#3B82F6'
+  showAddForm.value = false
+}
+
+function formatDate(dateString) {
+  return new Intl.DateTimeFormat('fr-FR').format(new Date(dateString))
+}
+
+// Charger les matières au montage du composant
+onMounted(() => {
+  nextTick(() => {
+    loadSubjects()
+  })
+})
+</script>
+
+<style scoped>
+/* Animation pour le scale au touch sur mobile */
+.active\:scale-98:active {
+  transform: scale(0.98);
+}
+</style>

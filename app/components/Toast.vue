@@ -1,58 +1,70 @@
 <template>
   <!-- Container des toasts -->
   <Teleport to="body">
-    <div class="fixed top-4 right-4 z-50 space-y-2">
-      <TransitionGroup name="toast" tag="div">
+    <div class="fixed top-4 right-4 z-[99999] space-y-3 max-w-sm">
+      <TransitionGroup
+        enter-active-class="transition ease-out duration-300 transform"
+        enter-from-class="translate-x-full opacity-0"
+        enter-to-class="translate-x-0 opacity-100"
+        leave-active-class="transition ease-in duration-200 transform"
+        leave-from-class="translate-x-0 opacity-100"
+        leave-to-class="translate-x-full opacity-0"
+        tag="div"
+      >
         <div
           v-for="toast in toasts"
           :key="toast.id"
           :class="[
-            'max-w-sm w-full shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden transform transition-all duration-300',
+            'w-full backdrop-blur-sm shadow-2xl rounded-2xl pointer-events-auto overflow-hidden transform transition-all duration-300 hover:scale-105 border-2',
             getToastStyle(toast.type)
           ]"
         >
+          <!-- Contenu principal -->
           <div class="p-4">
-            <div class="flex items-start">
-              <!-- Icône simple avec emoji -->
-              <div class="flex-shrink-0 mr-3">
+            <div class="flex items-start gap-3">
+              <!-- Icône moderne avec background -->
+              <div :class="[
+                'flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ring-2 ring-white/50',
+                getToastIconBg(toast.type)
+              ]">
                 <span class="text-xl">{{ getToastEmoji(toast.type) }}</span>
               </div>
               
               <!-- Contenu -->
               <div class="flex-1 min-w-0">
                 <p :class="[
-                  'text-sm font-medium',
+                  'text-sm font-bold',
                   getToastTextColor(toast.type)
                 ]">
                   {{ toast.title }}
                 </p>
                 <p v-if="toast.message" :class="[
-                  'mt-1 text-sm',
+                  'mt-1 text-sm font-medium',
                   getToastSubTextColor(toast.type)
                 ]">
                   {{ toast.message }}
                 </p>
               </div>
               
-              <!-- Bouton fermeture -->
-              <div class="ml-4 flex-shrink-0">
+              <!-- Bouton fermeture moderne -->
+              <div class="flex-shrink-0">
                 <button
                   @click="removeToast(toast.id)"
                   :class="[
-                    'rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none transition-colors p-1',
-                    getToastCloseColor(toast.type)
+                    'rounded-lg p-1.5 transition-all duration-200 hover:scale-110',
+                    getToastCloseStyle(toast.type)
                   ]"
                 >
-                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
           </div>
           
-          <!-- Barre de progression -->
-          <div v-if="toast.duration > 0" class="h-1 bg-black bg-opacity-10">
+          <!-- Barre de progression moderne -->
+          <div v-if="toast.duration > 0" class="h-1.5 bg-black/5">
             <div
               :class="[
                 'h-full transition-all ease-linear',
@@ -84,13 +96,23 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['remove'])
 
-// Fonctions utilitaires pour les styles
+// Fonctions utilitaires pour les styles modernes
 const getToastStyle = (type) => {
   const styles = {
-    success: 'bg-green-50 border-green-200',
-    error: 'bg-red-50 border-red-200',
-    warning: 'bg-yellow-50 border-yellow-200',
-    info: 'bg-blue-50 border-blue-200'
+    success: 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300',
+    error: 'bg-gradient-to-br from-red-50 to-rose-50 border-red-300',
+    warning: 'bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-300',
+    info: 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-300'
+  }
+  return styles[type] || styles.info
+}
+
+const getToastIconBg = (type) => {
+  const styles = {
+    success: 'bg-gradient-to-br from-green-500 to-emerald-500',
+    error: 'bg-gradient-to-br from-red-500 to-rose-500',
+    warning: 'bg-gradient-to-br from-yellow-500 to-amber-500',
+    info: 'bg-gradient-to-br from-blue-500 to-indigo-500'
   }
   return styles[type] || styles.info
 }
@@ -107,10 +129,10 @@ const getToastEmoji = (type) => {
 
 const getToastTextColor = (type) => {
   const colors = {
-    success: 'text-green-800',
-    error: 'text-red-800',
-    warning: 'text-yellow-800',
-    info: 'text-blue-800'
+    success: 'text-green-900',
+    error: 'text-red-900',
+    warning: 'text-yellow-900',
+    info: 'text-blue-900'
   }
   return colors[type] || colors.info
 }
@@ -125,22 +147,22 @@ const getToastSubTextColor = (type) => {
   return colors[type] || colors.info
 }
 
-const getToastCloseColor = (type) => {
+const getToastCloseStyle = (type) => {
   const colors = {
-    success: 'text-green-500 hover:text-green-600',
-    error: 'text-red-500 hover:text-red-600',
-    warning: 'text-yellow-500 hover:text-yellow-600',
-    info: 'text-blue-500 hover:text-blue-600'
+    success: 'text-green-600 hover:bg-green-100 hover:text-green-800',
+    error: 'text-red-600 hover:bg-red-100 hover:text-red-800',
+    warning: 'text-yellow-600 hover:bg-yellow-100 hover:text-yellow-800',
+    info: 'text-blue-600 hover:bg-blue-100 hover:text-blue-800'
   }
   return colors[type] || colors.info
 }
 
 const getToastProgressColor = (type) => {
   const colors = {
-    success: 'bg-green-400',
-    error: 'bg-red-400',
-    warning: 'bg-yellow-400',
-    info: 'bg-blue-400'
+    success: 'bg-gradient-to-r from-green-500 to-emerald-500',
+    error: 'bg-gradient-to-r from-red-500 to-rose-500',
+    warning: 'bg-gradient-to-r from-yellow-500 to-amber-500',
+    info: 'bg-gradient-to-r from-blue-500 to-indigo-500'
   }
   return colors[type] || colors.info
 }

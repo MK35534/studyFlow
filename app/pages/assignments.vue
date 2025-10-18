@@ -1,268 +1,340 @@
 <template>
   <title>StudyFlow - Mes devoirs</title>
-  <div>
-    <!-- Header avec bouton d'ajout -->
-    <div class="flex justify-between items-center mb-8">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">Mes devoirs</h1>
-        <p class="text-gray-600 mt-2">Organise et suit tes devoirs par matière</p>
-      </div>
-      <button 
-        @click="showAddForm = true"
-        :disabled="loading || subjects.length === 0"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+  <div 
+    class="min-h-screen"
+    @touchstart="handleTouchStart"
+    @touchmove="handleTouchMove"
+    @touchend="handleTouchEnd"
+  >
+    <!-- Pull-to-refresh indicator -->
+    <div 
+      v-if="isPulling || isRefreshing"
+      class="fixed top-0 left-0 right-0 z-40 flex justify-center pt-4 transition-all duration-200 pull-to-refresh-indicator"
+      :style="{ transform: `translateY(${Math.min(pullDistance, refreshThreshold)}px)`, opacity: pullDistance / refreshThreshold }"
+    >
+      <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 flex items-center gap-2">
+        <svg 
+          class="w-5 h-5 transition-transform duration-200"
+          :class="[
+            isRefreshing ? 'animate-spin text-blue-600' : 'text-gray-600 dark:text-gray-400',
+            pullDistance >= refreshThreshold && !isRefreshing ? 'rotate-180' : ''
+          ]"
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
-        Ajouter un devoir
-      </button>
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ isRefreshing ? 'Actualisation...' : pullDistance >= refreshThreshold ? 'Relâcher pour actualiser' : 'Tirer pour actualiser' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Header moderne avec dégradé -->
+    <div class="mb-8 md:mb-12">
+      <div class="relative">
+        <div class="absolute inset-0 bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl opacity-50 blur-3xl"></div>
+        <div class="relative flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+          <div class="flex-1">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">Mes devoirs</h1>
+            <p class="text-gray-600 dark:text-gray-400 text-base md:text-lg transition-colors duration-300">Organise et suis tes devoirs par matière</p>
+          </div>
+          <button 
+            @click="showAddForm = true"
+            :disabled="loading || subjects.length === 0"
+            class="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5"
+          >
+            <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            <svg class="w-5 h-5 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span class="font-semibold relative">Ajouter un devoir</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Message si pas de matières -->
-    <div v-if="subjects.length === 0" class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div v-if="subjects.length === 0" class="relative overflow-hidden bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-200 rounded-2xl p-6 mb-8">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-100 to-transparent rounded-full blur-3xl opacity-40"></div>
+      <div class="relative flex gap-4">
+        <div class="p-3 bg-yellow-100 rounded-xl flex-shrink-0">
+          <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.854-.833-2.5 0l-5.898 8.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
         </div>
-        <div class="ml-3">
+        <div>
+          <p class="text-base font-semibold text-yellow-900 mb-1">Créez d'abord vos matières</p>
           <p class="text-sm text-yellow-700">
-            Tu dois d'abord créer des matières pour pouvoir ajouter des devoirs.
-            <NuxtLink to="/subjects" class="font-medium underline hover:text-yellow-600">
-              Créer des matières
+            Tu dois créer des matières pour pouvoir ajouter des devoirs.
+            <NuxtLink to="/subjects" class="font-bold underline hover:text-yellow-800 ml-1">
+              Créer mes matières →
             </NuxtLink>
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Formulaire d'ajout (conditionnel) -->
-    <div v-if="showAddForm" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Nouveau devoir</h3>
-      <form @submit.prevent="addAssignment" class="space-y-4">
-        <div>
-          <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
-            Titre du devoir
-          </label>
-          <input
-            type="text"
-            id="title"
-            v-model="newAssignment.title"
-            placeholder="Ex: Exercices chapitre 5, Dissertation sur..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          />
-        </div>
+    <!-- Formulaire d'ajout moderne -->
+    <div v-if="showAddForm" class="relative overflow-hidden bg-gradient-to-br from-white dark:from-gray-800 to-blue-50/30 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-8 shadow-lg transition-colors duration-300">
+      <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-100 dark:from-blue-900/30 to-transparent rounded-full blur-3xl opacity-30"></div>
+      <div class="relative">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3 transition-colors duration-300">
+          <span class="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </span>
+          Nouveau devoir
+        </h3>
+        <form @submit.prevent="addAssignment" class="space-y-5">
+          <div>
+            <label for="title" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+              Titre du devoir
+            </label>
+            <input
+              type="text"
+              id="title"
+              v-model="newAssignment.title"
+              placeholder="Ex: Exercices chapitre 5..."
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              required
+            />
+          </div>
 
-        <div>
-          <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">
-            Matière
-          </label>
-          <select
-            id="subject"
-            v-model="newAssignment.subject_id"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          >
-            <option value="">Choisir une matière</option>
-            <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
-              {{ subject.name }}
-            </option>
-          </select>
-        </div>
-        
-        <div>
-          <label for="due_date" class="block text-sm font-medium text-gray-700 mb-1">
-            Date d'échéance
-          </label>
-          <input
-            type="date"
-            id="due_date"
-            v-model="newAssignment.due_date"
-            :min="today"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          />
-        </div>
+          <div>
+            <label for="subject" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+              Matière
+            </label>
+            <select
+              id="subject"
+              v-model="newAssignment.subject_id"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              required
+            >
+              <option value="">Choisir une matière</option>
+              <option v-for="subject in subjects" :key="subject.id" :value="subject.id">
+                {{ subject.name }}
+              </option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+              Date d'échéance
+            </label>
+            <DatePicker v-model="newAssignment.due_date" />
+          </div>
 
-        <div>
-          <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-            Description (optionnel)
-          </label>
-          <textarea
-            id="description"
-            v-model="newAssignment.description"
-            rows="3"
-            placeholder="Détails, consignes, pages à faire..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
+          <div>
+            <label for="description" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors duration-300">
+              Description (optionnel)
+            </label>
+            <textarea
+              id="description"
+              v-model="newAssignment.description"
+              rows="3"
+              placeholder="Détails, consignes..."
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+            />
+          </div>
 
-        <div class="flex space-x-3 pt-4">
-          <button
-            type="submit"
-            :disabled="loading"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-          >
-            {{ loading ? 'Création...' : 'Créer le devoir' }}
-          </button>
-          <button
-            type="button"
-            @click="cancelAdd"
-            :disabled="loading"
-            class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
-          >
-            Annuler
-          </button>
-        </div>
-      </form>
+          <!-- Section Tags -->
+          <div>
+            <TagSelector v-model="newAssignment.tags" @manage-tags="navigateTo('/subjects')" />
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button
+              type="submit"
+              :disabled="loading"
+              class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 disabled:opacity-50 font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5"
+            >
+              {{ loading ? 'Création...' : 'Créer le devoir' }}
+            </button>
+            <button
+              type="button"
+              @click="cancelAdd"
+              :disabled="loading"
+              class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all disabled:opacity-50 font-medium"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <!-- Filtres -->
-    <div class="flex space-x-4 mb-6">
+    <!-- Filtres modernes -->
+    <div class="flex gap-3 mb-6 overflow-x-auto pb-2">
       <button
         @click="currentFilter = 'all'"
         :class="[
-          'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+          'px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap',
           currentFilter === 'all'
-            ? 'bg-blue-100 text-blue-700 border border-blue-300'
-            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
+            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
         ]"
       >
-        Tous ({{ assignments.length }})
+        <span class="flex items-center gap-2">
+          Tous
+          <span class="px-2 py-0.5 bg-white/20 rounded-lg text-xs">{{ assignments.length }}</span>
+        </span>
       </button>
       <button
         @click="currentFilter = 'pending'"
         :class="[
-          'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+          'px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap',
           currentFilter === 'pending'
-            ? 'bg-orange-100 text-orange-700 border border-orange-300'
-            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/30'
+            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20'
         ]"
       >
-        À faire ({{ pendingAssignments.length }})
+        <span class="flex items-center gap-2">
+          À faire
+          <span class="px-2 py-0.5 bg-white/20 rounded-lg text-xs">{{ pendingAssignments.length }}</span>
+        </span>
       </button>
       <button
         @click="currentFilter = 'completed'"
         :class="[
-          'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+          'px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap',
           currentFilter === 'completed'
-            ? 'bg-green-100 text-green-700 border border-green-300'
-            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/30'
+            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'
         ]"
       >
-        Terminés ({{ completedAssignments.length }})
+        <span class="flex items-center gap-2">
+          Terminés
+          <span class="px-2 py-0.5 bg-white/20 rounded-lg text-xs">{{ completedAssignments.length }}</span>
+        </span>
       </button>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading && assignments.length === 0" class="text-center py-8">
-      <p class="text-gray-500">Chargement des devoirs...</p>
+    <div v-if="loading && assignments.length === 0" class="text-center py-12">
+      <div class="inline-block w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">Chargement des devoirs...</p>
     </div>
 
-    <!-- Liste des devoirs -->
-    <div v-else-if="filteredAssignments.length > 0" class="space-y-4">
+    <!-- Liste des devoirs - Design moderne -->
+    <div v-else-if="filteredAssignments.length > 0" class="space-y-4 no-swipe">
       <div 
         v-for="(assignment, index) in filteredAssignments" 
         :key="assignment.id"
         :class="[
-          'bg-white rounded-lg shadow-sm border p-6 transition-all duration-200 stagger-item',
-          'hover-lift hover:shadow-md',
-          assignment.is_completed ? 'border-green-200 bg-green-50' : 'border-gray-200'
+          'group relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-xl hover:-translate-y-1',
+          assignment.is_completed 
+            ? 'bg-gradient-to-br from-green-50 to-emerald-50/30 border-green-200 hover:border-green-300 dark:from-green-900/20 dark:to-emerald-900/10 dark:border-green-800 dark:hover:border-green-700' 
+            : 'bg-gradient-to-br from-white to-blue-50/20 border-gray-200 hover:border-blue-300 dark:from-gray-800 dark:to-gray-900 dark:border-gray-700 dark:hover:border-blue-600'
         ]"
         :style="{ animationDelay: `${index * 0.05}s` }"
       >
-        <div class="flex items-start justify-between">
-          <div class="flex items-start space-x-4 flex-1">
-            <!-- Checkbox -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 dark:from-blue-900/30 to-transparent rounded-full blur-3xl opacity-20"></div>
+        <div class="relative p-5 md:p-6">
+          <div class="flex items-start gap-4">
+            <!-- Checkbox moderne -->
             <button
               @click="toggleAssignment(assignment)"
               :disabled="loading"
-              class="mt-1"
+              class="mt-1 flex-shrink-0 group/check"
             >
-              <svg 
-                :class="[
-                  'w-6 h-6 transition-colors',
-                  assignment.is_completed 
-                    ? 'text-green-600' 
-                    : 'text-gray-400 hover:text-green-500'
-                ]"
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
+              <div :class="[
+                'w-7 h-7 rounded-xl border-2 transition-all duration-200 flex items-center justify-center',
+                assignment.is_completed 
+                  ? 'bg-gradient-to-br from-green-500 to-emerald-600 border-green-500 shadow-lg shadow-green-500/30' 
+                  : 'border-gray-300 dark:border-gray-600 group-hover/check:border-blue-500 dark:group-hover/check:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+              ]">
+                <svg 
                   v-if="assignment.is_completed"
-                  stroke-linecap="round" 
-                  stroke-linejoin="round" 
-                  stroke-width="2" 
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-                <circle 
-                  v-else
-                  cx="12" 
-                  cy="12" 
-                  r="10" 
-                  stroke-width="2"
-                />
-              </svg>
+                  class="w-5 h-5 text-white"
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
             </button>
 
             <!-- Contenu -->
             <div class="flex-1 min-w-0">
-              <div class="flex items-center space-x-3 mb-2">
+              <div class="flex items-start justify-between gap-3 mb-3">
                 <h3 :class="[
-                  'text-lg font-semibold',
-                  assignment.is_completed ? 'text-gray-500 line-through' : 'text-gray-900'
+                  'text-lg md:text-xl font-bold transition-colors duration-300',
+                  assignment.is_completed ? 'text-gray-500 dark:text-gray-600 line-through' : 'text-gray-900 dark:text-gray-100'
                 ]">
                   {{ assignment.title }}
                 </h3>
-                <div class="flex items-center space-x-2">
-                  <div 
-                    class="w-3 h-3 rounded-full"
-                    :style="{ backgroundColor: getSubjectColor(assignment.subject_id) }"
-                  />
-                  <span class="text-sm text-gray-600">{{ getSubjectName(assignment.subject_id) }}</span>
-                </div>
               </div>
               
-              <div class="flex items-center space-x-4 text-sm text-gray-600 mb-2">
-                <div class="flex items-center">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="flex items-center gap-4 mb-3">
+                <div class="flex items-center gap-2">
+                  <div 
+                    class="w-3 h-3 rounded-full ring-4 ring-white dark:ring-gray-800 shadow-sm"
+                    :style="{ backgroundColor: getSubjectColor(assignment.subject_id) }"
+                  />
+                  <span class="text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors duration-300">
+                    {{ getSubjectName(assignment.subject_id) }}
+                  </span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span :class="getDueDateClass(assignment.due_date)">
+                  <span :class="[
+                    'text-sm font-bold px-3 py-1 rounded-lg',
+                    getDueDateClass(assignment.due_date) === 'text-red-600' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
+                    getDueDateClass(assignment.due_date) === 'text-orange-600' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' :
+                    getDueDateClass(assignment.due_date) === 'text-yellow-600' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400' :
+                    'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                  ]">
                     {{ formatDueDate(assignment.due_date) }}
                   </span>
                 </div>
               </div>
 
               <p v-if="assignment.description" :class="[
-                'text-sm',
-                assignment.is_completed ? 'text-gray-400' : 'text-gray-700'
+                'text-sm leading-relaxed transition-colors duration-300',
+                assignment.is_completed ? 'text-gray-500 dark:text-gray-600' : 'text-gray-600 dark:text-gray-400'
               ]">
                 {{ assignment.description }}
               </p>
-            </div>
-          </div>
 
-          <!-- Actions -->
-          <button
-            @click="deleteAssignment(assignment.id)"
-            :disabled="loading"
-            class="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
+              <!-- Tags -->
+              <div v-if="assignment.tags && assignment.tags.length > 0" class="flex flex-wrap gap-2 mt-3">
+                <span
+                  v-for="tag in assignment.tags"
+                  :key="tag.id"
+                  class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold text-white shadow-sm transition-transform hover:scale-105"
+                  :style="{ backgroundColor: tag.color }"
+                >
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                  {{ tag.name }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Bouton supprimer moderne -->
+            <button
+              @click="deleteAssignment(assignment.id)"
+              :disabled="loading"
+              class="flex-shrink-0 p-2.5 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all disabled:opacity-50 group/delete"
+            >
+              <svg class="w-5 h-5 group-hover/delete:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- État vide selon le filtre -->
+    <!-- État vide -->
     <EmptyState
       v-else
       :title="currentFilter === 'completed' ? 'Aucun devoir terminé' : 
@@ -285,8 +357,8 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick } from 'vue'
+import { usePullToRefresh } from '~/composables/useTouchOptimizations'
 
-// Données réactives
 const assignments = ref([])
 const subjects = ref([])
 const showAddForm = ref(false)
@@ -297,13 +369,12 @@ const newAssignment = reactive({
   title: '',
   subject_id: '',
   due_date: '',
-  description: ''
+  description: '',
+  tags: []
 })
 
-// Date d'aujourd'hui pour le minimum du date picker
 const today = new Date().toISOString().split('T')[0]
 
-// Computed properties pour les filtres
 const pendingAssignments = computed(() => 
   assignments.value.filter(a => !a.is_completed)
 )
@@ -323,7 +394,20 @@ const filteredAssignments = computed(() => {
   }
 })
 
-// Fonctions utilitaires
+// Pull-to-refresh pour mobile
+const {
+  isPulling,
+  isRefreshing,
+  pullDistance,
+  refreshThreshold,
+  handleTouchStart,
+  handleTouchMove,
+  handleTouchEnd
+} = usePullToRefresh(async () => {
+  // Recharger les devoirs et matières
+  await Promise.all([loadAssignments(), loadSubjects()])
+})
+
 function getSubjectName(subjectId) {
   const subject = subjects.value.find(s => s.id === subjectId)
   return subject ? subject.name : 'Matière inconnue'
@@ -346,9 +430,9 @@ function formatDueDate(dateString) {
     return "Demain"
   } else {
     return new Intl.DateTimeFormat('fr-FR', { 
-      weekday: 'long', 
+      weekday: 'short', 
       day: 'numeric', 
-      month: 'long' 
+      month: 'short' 
     }).format(date)
   }
 }
@@ -360,16 +444,15 @@ function getDueDateClass(dateString) {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   
   if (diffDays < 0) {
-    return 'text-red-600 font-medium' // En retard
+    return 'text-red-600 font-medium'
   } else if (diffDays <= 1) {
-    return 'text-orange-600 font-medium' // Urgent
+    return 'text-orange-600 font-medium'
   } else if (diffDays <= 3) {
-    return 'text-yellow-600' // Bientôt
+    return 'text-yellow-600'
   }
-  return 'text-gray-600' // Normal
+  return 'text-gray-600'
 }
 
-// Fonctions API (à implémenter)
 async function loadData() {
   await Promise.all([loadSubjects(), loadAssignments()])
 }
@@ -409,7 +492,22 @@ async function loadAssignments() {
       headers: { Authorization: `Bearer ${token}` }
     })
     
-    assignments.value = response.data || []
+    const assignmentsData = response.data || []
+    
+    // Charger les tags pour chaque devoir
+    for (const assignment of assignmentsData) {
+      try {
+        const tagsResponse = await $fetch(`/api/assignments/${assignment.id}/tags`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        assignment.tags = tagsResponse.tags || []
+      } catch (tagError) {
+        console.error(`Erreur chargement tags pour devoir ${assignment.id}:`, tagError)
+        assignment.tags = []
+      }
+    }
+    
+    assignments.value = assignmentsData
   } catch (error) {
     console.error('Erreur chargement devoirs:', error)
     if (error.status === 401) {
@@ -440,8 +538,27 @@ async function addAssignment() {
     })
     
     if (response.success) {
-       assignments.value.unshift(response.data)
-  
+      const newAssignmentData = response.data
+      
+      // Associer les tags au devoir si des tags ont été sélectionnés
+      if (newAssignment.tags && newAssignment.tags.length > 0) {
+        for (const tagId of newAssignment.tags) {
+          try {
+            await $fetch(`/api/assignments/${newAssignmentData.id}/tags`, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}` },
+              body: { tag_id: tagId }
+            })
+          } catch (tagError) {
+            console.error('Erreur association tag:', tagError)
+          }
+        }
+        // Ajouter les tags au devoir pour l'affichage
+        newAssignmentData.tags = newAssignment.tags
+      }
+      
+      assignments.value.unshift(newAssignmentData)
+      
       const { success } = useToast()
       const dueDate = new Date(newAssignment.due_date)
       const isToday = dueDate.toDateString() === new Date().toDateString()
@@ -461,16 +578,17 @@ async function addAssignment() {
         message
       )
       
-      // Reset du formulaire
       newAssignment.title = ''
       newAssignment.subject_id = ''
       newAssignment.due_date = ''
       newAssignment.description = ''
+      newAssignment.tags = []
       showAddForm.value = false
     }
   } catch (error) {
     console.error('Erreur création devoir:', error)
-    alert('Erreur lors de la création du devoir')
+    const { error: errorToast } = useToast()
+    errorToast('Erreur', 'Impossible de créer le devoir')
   } finally {
     loading.value = false
   }
@@ -494,7 +612,8 @@ async function toggleAssignment(assignment) {
     }
   } catch (error) {
     console.error('Erreur toggle devoir:', error)
-    alert('Erreur lors de la mise à jour du devoir')
+    const { error: errorToast } = useToast()
+    errorToast('Erreur', 'Impossible de mettre à jour le devoir')
   } finally {
     loading.value = false
   }
@@ -513,9 +632,12 @@ async function deleteAssignment(id) {
     })
     
     assignments.value = assignments.value.filter(a => a.id !== id)
+    const { success } = useToast()
+    success('Devoir supprimé', 'Le devoir a été supprimé avec succès')
   } catch (error) {
     console.error('Erreur suppression devoir:', error)
-    alert('Erreur lors de la suppression du devoir')
+    const { error: errorToast } = useToast()
+    errorToast('Erreur', 'Impossible de supprimer le devoir')
   } finally {
     loading.value = false
   }
@@ -529,7 +651,6 @@ function cancelAdd() {
   showAddForm.value = false
 }
 
-// Méthodes pour l'état vide
 function getEmptyDescription() {
   if (currentFilter.value === 'completed') {
     return 'Aucun devoir terminé pour le moment. Continue ton excellent travail !'
@@ -559,16 +680,21 @@ function getEmptyTips() {
   }
   
   return [
-    'Double-clic sur une date du calendrier pour créer rapidement',
-    'Utilise la palette de commandes (Ctrl+K) pour aller plus vite',
-    'Les devoirs en retard apparaissent en rouge pour plus de visibilité'
+    'Utilise les filtres pour organiser tes devoirs',
+    'Marque les devoirs comme terminés en cliquant le cercle',
+    'Les devoirs en retard apparaissent en rouge'
   ]
 }
 
-// Charger les données au montage
 onMounted(() => {
   nextTick(() => {
     loadData()
   })
 })
 </script>
+
+<style scoped>
+.active\:scale-98:active {
+  transform: scale(0.98);
+}
+</style>

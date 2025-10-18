@@ -1,209 +1,278 @@
 <template>
-  <div>
-    <title>StudyFlow - Tableau de bord</title>
-    <!-- Header -->
+  <div class="min-h-screen">
+    <title>StudyFlow - Dashboard</title>
+    
+    <!-- Header avec salutation personnalisée -->
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-      <p class="text-gray-600 mt-2">Bienvenue sur StudyFlow, {{ userName }}</p>
-    </div>
-
-    <!-- Statistiques détaillées -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <!-- Stats existantes + nouvelle -->
-      <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div class="flex items-center">
-          <div class="p-2 bg-indigo-100 rounded-lg">
-            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-2xl font-semibold text-gray-900">{{ stats.completionRate }}%</p>
-            <p class="text-gray-600 text-sm">Taux de réussite</p>
-          </div>
+      <div class="relative">
+        <div :class="`absolute inset-0 bg-gradient-to-r ${theme.gradientBg} rounded-2xl opacity-50 blur-3xl`"></div>
+        <div class="relative">
+          <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">
+            {{ greeting }}, {{ userName }} 👋
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400 text-base md:text-lg transition-colors duration-300">
+            {{ motivationalQuote }}
+          </p>
         </div>
       </div>
-      
-      <!-- ... autres stats existantes -->
-      <!-- Stats rapides -->
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div class="flex items-center">
-            <div class="p-2 bg-blue-100 rounded-lg">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-            <div class="ml-4">
-              <p class="text-2xl font-semibold text-gray-900">{{ stats.totalSubjects }}</p>
-              <p class="text-gray-600 text-sm">Matières</p>
-            </div>
-          </div>
-        </div>
+    </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div class="flex items-center">
-          <div class="p-2 bg-green-100 rounded-lg">
-            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Stats rapides -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <!-- Devoirs urgents -->
+      <div :class="`group relative overflow-hidden bg-gradient-to-br ${theme.gradientBg} dark:from-gray-800 dark:to-gray-900 to-white rounded-2xl p-6 border-2 ${theme.border} dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300`">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-red-100 dark:from-red-900/30 to-transparent rounded-full blur-2xl opacity-50"></div>
+        <div class="relative">
+          <div class="p-3 bg-white dark:bg-gray-800/50 rounded-xl mb-4 inline-flex shadow-sm transition-colors duration-300">
+            <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 transition-colors duration-300">{{ stats.urgent }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 font-medium transition-colors duration-300">Devoirs urgents</p>
+          <p class="text-xs text-red-600 dark:text-red-400 font-semibold mt-1 transition-colors duration-300">≤ 3 jours</p>
+        </div>
+      </div>
+
+      <!-- Complétés cette semaine -->
+      <div :class="`group relative overflow-hidden bg-gradient-to-br from-green-50 dark:from-gray-800 to-white dark:to-gray-900 rounded-2xl p-6 border-2 border-green-100 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300`">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-100 dark:from-green-900/30 to-transparent rounded-full blur-2xl opacity-50"></div>
+        <div class="relative">
+          <div class="p-3 bg-white dark:bg-gray-800/50 rounded-xl mb-4 inline-flex shadow-sm transition-colors duration-300">
+            <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div class="ml-4">
-            <p class="text-2xl font-semibold text-gray-900">{{ stats.completedAssignments }}</p>
-            <p class="text-gray-600 text-sm">Devoirs terminés</p>
+          <p class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 transition-colors duration-300">{{ stats.completedThisWeek }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 font-medium transition-colors duration-300">Cette semaine</p>
+          <p class="text-xs text-green-600 dark:text-green-400 font-semibold mt-1 transition-colors duration-300">+{{ stats.weekProgress }}%</p>
+        </div>
+      </div>
+
+      <!-- Matières actives -->
+      <div :class="`group relative overflow-hidden bg-gradient-to-br ${theme.gradientBg} dark:from-gray-800 dark:to-gray-900 to-white rounded-2xl p-6 border-2 ${theme.border} dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300`">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-100 dark:from-blue-900/30 to-transparent rounded-full blur-2xl opacity-50"></div>
+        <div class="relative">
+          <div class="p-3 bg-white dark:bg-gray-800/50 rounded-xl mb-4 inline-flex shadow-sm transition-colors duration-300">
+            <svg class="w-6 h-6" :class="theme.text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <p class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 transition-colors duration-300">{{ stats.totalSubjects }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 font-medium transition-colors duration-300">Matières</p>
+        </div>
+      </div>
+
+      <!-- Taux de réussite -->
+      <div :class="`group relative overflow-hidden bg-gradient-to-br from-purple-50 dark:from-gray-800 to-white dark:to-gray-900 rounded-2xl p-6 border-2 border-purple-100 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300`">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-100 dark:from-purple-900/30 to-transparent rounded-full blur-2xl opacity-50"></div>
+        <div class="relative">
+          <div class="p-3 bg-white dark:bg-gray-800/50 rounded-xl mb-4 inline-flex shadow-sm transition-colors duration-300">
+            <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <p class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 transition-colors duration-300">{{ stats.completionRate }}%</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 font-medium transition-colors duration-300">Taux de réussite</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grille principale : Devoirs urgents + Prochains cours -->
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <!-- Devoirs urgents -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-red-50 dark:from-red-900/20 to-white dark:to-gray-800 transition-colors duration-300">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-300">Devoirs urgents</h2>
+            </div>
+            <NuxtLink to="/assignments" class="text-sm font-semibold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors duration-300">
+              Voir tout →
+            </NuxtLink>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <div v-if="urgentAssignments.length === 0" class="text-center py-8">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">Aucun devoir urgent !</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">Excellent travail 🎉</p>
+          </div>
+          
+          <div v-else class="space-y-3">
+            <div
+              v-for="assignment in urgentAssignments"
+              :key="assignment.id"
+              class="flex items-start gap-4 p-4 rounded-xl border-2 border-gray-100 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-800 hover:bg-red-50/50 dark:hover:bg-red-900/20 transition-all duration-200 group cursor-pointer"
+              @click="navigateTo('/assignments')"
+            >
+              <div :class="`flex-shrink-0 w-10 h-10 rounded-xl ${getSubjectColor(assignment.subject_id)} flex items-center justify-center text-white font-bold shadow-sm`">
+                {{ getSubjectInitials(assignment.subject_id) }}
+              </div>
+              
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-1 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
+                  {{ assignment.title }}
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors duration-300">{{ getSubjectName(assignment.subject_id) }}</p>
+                <div class="flex items-center gap-2">
+                  <span :class="`px-2 py-1 rounded-lg text-xs font-bold ${getUrgencyStyle(assignment.due_date)}`">
+                    {{ formatDaysLeft(assignment.due_date) }}
+                  </span>
+                  <span class="text-xs text-gray-500 dark:text-gray-500 transition-colors duration-300">{{ formatDate(assignment.due_date) }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div class="flex items-center">
-          <div class="p-2 bg-orange-100 rounded-lg">
-            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Prochains cours -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+        <div :class="`p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r ${theme.gradientBg} dark:from-gray-800 to-white dark:to-gray-800 transition-colors duration-300`">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div :class="`p-2 bg-gradient-to-br ${theme.gradient} rounded-xl`">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-300">Aujourd'hui</h2>
+            </div>
+            <NuxtLink to="/calendar" :class="`text-sm font-semibold ${theme.text} hover:opacity-80 transition-opacity duration-300`">
+              Calendrier →
+            </NuxtLink>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <div class="text-center py-8">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">Emploi du temps bientôt disponible</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">En attendant, consultez votre calendrier</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Raccourcis rapides -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 p-6 mb-8 transition-colors duration-300">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 transition-colors duration-300">
+        <svg class="w-6 h-6" :class="theme.text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        Actions rapides
+      </h2>
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button
+          @click="navigateTo('/assignments')"
+          :class="`p-4 rounded-xl border-2 ${theme.border} dark:border-gray-700 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group`"
+        >
+          <div :class="`p-3 bg-gradient-to-br ${theme.gradient} rounded-xl mb-3 inline-flex`">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          <p class="font-semibold text-gray-900 dark:text-gray-100 text-sm transition-colors duration-300">Ajouter un devoir</p>
+        </button>
+
+        <button
+          @click="navigateTo('/subjects')"
+          :class="`p-4 rounded-xl border-2 border-green-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group`"
+        >
+          <div class="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl mb-3 inline-flex">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <p class="font-semibold text-gray-900 dark:text-gray-100 text-sm transition-colors duration-300">Gérer matières</p>
+        </button>
+
+        <button
+          @click="navigateTo('/focus')"
+          class="p-4 rounded-xl border-2 border-purple-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group"
+        >
+          <div class="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl mb-3 inline-flex">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div class="ml-4">
-            <p class="text-2xl font-semibold text-gray-900">{{ stats.pendingAssignments }}</p>
-            <p class="text-gray-600 text-sm">À faire</p>
-          </div>
-        </div>
-      </div>
+          <p class="font-semibold text-gray-900 dark:text-gray-100 text-sm transition-colors duration-300">Mode Focus</p>
+        </button>
 
-      <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div class="flex items-center">
-          <div class="p-2 bg-purple-100 rounded-lg">
-            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button
+          @click="navigateTo('/calendar')"
+          class="p-4 rounded-xl border-2 border-orange-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group"
+        >
+          <div class="p-3 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl mb-3 inline-flex">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <div class="ml-4">
-            <p class="text-2xl font-semibold text-gray-900">{{ stats.thisWeekAssignments }}</p>
-            <p class="text-gray-600 text-sm">Cette semaine</p>
-          </div>
-        </div>
-
+          <p class="font-semibold text-gray-900 dark:text-gray-100 text-sm transition-colors duration-300">Calendrier</p>
+        </button>
+      </div>
     </div>
 
-    </div>
-
-    <!-- Prochains devoirs -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-      <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-        <h2 class="text-xl font-semibold text-gray-900">Devoirs urgents</h2>
-        <NuxtLink 
-          to="/assignments" 
-          class="text-blue-600 hover:text-blue-500 text-sm font-medium"
+    <!-- Par matière -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 transition-colors duration-300">
+        <svg class="w-6 h-6" :class="theme.text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        Devoirs par matière
+      </h2>
+      
+      <div v-if="subjects.length === 0" class="text-center py-8">
+        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+        <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">Aucune matière</p>
+        <button
+          @click="navigateTo('/subjects')"
+          :class="`mt-4 px-6 py-3 bg-gradient-to-r ${theme.gradient} text-white rounded-xl font-semibold hover:shadow-lg transition-all`"
         >
-          Voir tous →
-        </NuxtLink>
+          Créer une matière
+        </button>
       </div>
-      <div class="p-6">
-        <div v-if="loading" class="text-center text-gray-500 py-4">
-          <p>Chargement...</p>
-        </div>
-        <div v-else-if="urgentAssignments.length > 0" class="space-y-4">
-          <div 
-            v-for="assignment in urgentAssignments" 
-            :key="assignment.id"
-            class="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <div class="flex items-center space-x-3">
-              <div 
-                class="w-3 h-3 rounded-full"
-                :style="{ backgroundColor: assignment.subject_color }"
-              />
-              <div>
-                <p class="font-medium text-gray-900">{{ assignment.title }}</p>
-                <p class="text-sm text-gray-600">{{ assignment.subject_name }}</p>
-              </div>
+      
+      <div v-else class="grid md:grid-cols-3 gap-4">
+        <div
+          v-for="subject in subjects"
+          :key="subject.id"
+          class="p-5 rounded-xl border-2 border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200 group cursor-pointer bg-white dark:bg-gray-800/50"
+          @click="navigateTo('/assignments')"
+        >
+          <div class="flex items-center gap-3 mb-4">
+            <div :class="`w-12 h-12 rounded-xl ${getSubjectColor(subject.id)} flex items-center justify-center text-white font-bold shadow-sm`">
+              {{ getSubjectInitials(subject.id) }}
             </div>
-            <div class="text-right">
-              <p :class="getDueDateClass(assignment.due_date)" class="text-sm font-medium">
-                {{ formatDueDate(assignment.due_date) }}
-              </p>
+            <div class="flex-1">
+              <h3 class="font-bold text-gray-900 dark:text-gray-100 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300">{{ subject.name }}</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">{{ subject.teacher || 'Pas de professeur' }}</p>
             </div>
           </div>
-        </div>
-        <div v-else class="text-center text-gray-500 py-8">
-          <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p class="mb-2">Aucun devoir urgent</p>
-          <p class="text-sm">Tous tes devoirs sont sous contrôle ! 🎉</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Actions rapides -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h3>
-        <div class="space-y-3">
-          <NuxtLink
-            to="/assignments"
-            class="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-          >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Ajouter un devoir
-          </NuxtLink>
           
-          <NuxtLink
-            to="/subjects"
-            class="flex items-center p-3 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-          >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            Gérer mes matières
-          </NuxtLink>
-
-          <NuxtLink
-            to="/calendar"
-            class="flex items-center p-3 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-          >
-            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-
-            Voir le calendrier
-          </NuxtLink>
-
-          <NuxtLink
-            to="/focus"
-            class="flex items-center p-3 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-          >
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Mode Focus
-          </NuxtLink>
-        </div>
-      </div>
-
-      <!-- Matières avec le plus de devoirs -->
-      <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Matières actives</h3>
-        <div v-if="subjectStats.length > 0" class="space-y-3">
-          <div 
-            v-for="subject in subjectStats" 
-            :key="subject.id"
-            class="flex items-center justify-between"
-          >
-            <div class="flex items-center space-x-3">
-              <div 
-                class="w-3 h-3 rounded-full"
-                :style="{ backgroundColor: subject.color }"
-              />
-              <span class="text-gray-900">{{ subject.name }}</span>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-300">{{ getSubjectAssignmentsCount(subject.id) }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">devoirs</p>
             </div>
-            <span class="text-sm text-gray-600">
-              {{ subject.pending_count }} en cours
-            </span>
+            <div :class="`px-3 py-1 rounded-lg text-xs font-bold ${getSubjectUrgencyBadge(subject.id)}`">
+              {{ getSubjectUrgentCount(subject.id) }} urgent{{ getSubjectUrgentCount(subject.id) > 1 ? 's' : '' }}
+            </div>
           </div>
-        </div>
-        <div v-else class="text-center text-gray-500 py-4">
-          <p class="text-sm">Aucune matière avec des devoirs en cours</p>
         </div>
       </div>
     </div>
@@ -213,166 +282,196 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 
+// Thème
+const { theme } = useTheme()
+
 // Données réactives
 const assignments = ref([])
 const subjects = ref([])
 const loading = ref(false)
 const userName = ref('')
+const motivationalQuote = ref('Bienvenue sur StudyFlow ✨') // Valeur par défaut
 
-// Stats calculées
+// Salutation selon l'heure
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Bonjour'
+  if (hour < 18) return 'Bon après-midi'
+  return 'Bonsoir'
+})
+
+// Citations motivantes
+const quotes = [
+  'Chaque petit pas compte vers ton succès 🌟',
+  'La constance mène au succès 💪',
+  'Transforme tes objectifs en réalité ✨',
+  'Aujourd\'hui est un nouveau départ 🚀',
+  'Crois en toi et tout est possible 🎯',
+  'Le succès est la somme de petits efforts répétés 📚',
+  'Ton avenir commence maintenant ⭐',
+]
+
+// Statistiques
 const stats = computed(() => {
-  const today = new Date()
-  const weekEnd = new Date(today)
   const total = assignments.value.length
   const completed = assignments.value.filter(a => a.is_completed).length
   const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0
-  weekEnd.setDate(today.getDate() + 7)
   
-  const thisWeekCount = assignments.value.filter(a => {
+  // Devoirs urgents (≤ 3 jours)
+  const now = new Date()
+  const urgent = assignments.value.filter(a => {
+    if (a.is_completed) return false
     const dueDate = new Date(a.due_date)
-    return !a.is_completed && dueDate >= today && dueDate <= weekEnd
+    const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24))
+    return diffDays >= 0 && diffDays <= 3
   }).length
-
+  
+  // Complétés cette semaine
+  const weekStart = new Date()
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+  weekStart.setHours(0, 0, 0, 0)
+  const completedThisWeek = assignments.value.filter(a => {
+    return a.is_completed && new Date(a.completed_at || a.updated_at) >= weekStart
+  }).length
+  
+  // Progression de la semaine (%)
+  const lastWeekCompleted = 10 // Mock pour l'instant
+  const weekProgress = lastWeekCompleted > 0 
+    ? Math.round(((completedThisWeek - lastWeekCompleted) / lastWeekCompleted) * 100) 
+    : 0
+  
   return {
     totalSubjects: subjects.value.length,
-    completedAssignments: assignments.value.filter(a => a.is_completed).length,
-    pendingAssignments: assignments.value.filter(a => !a.is_completed).length,
-    thisWeekAssignments: thisWeekCount,
+    totalAssignments: total,
+    completedAssignments: completed,
     completionRate,
-    totalAssignments: total
+    urgent,
+    completedThisWeek,
+    weekProgress: Math.abs(weekProgress)
   }
 })
 
-// Devoirs urgents (dans les 3 prochains jours)
+// Devoirs urgents (≤ 3 jours)
 const urgentAssignments = computed(() => {
   const now = new Date()
-  const threeDaysFromNow = new Date(now.getTime() + (3 * 24 * 60 * 60 * 1000))
-  
   return assignments.value
-    .filter(a => !a.is_completed && new Date(a.due_date) <= threeDaysFromNow)
+    .filter(a => {
+      if (a.is_completed) return false
+      const dueDate = new Date(a.due_date)
+      const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24))
+      return diffDays >= 0 && diffDays <= 3
+    })
     .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
-    .slice(0, 5) // Max 5 devoirs
-})
-
-// Stats par matière
-const subjectStats = computed(() => {
-  const stats = subjects.value.map(subject => {
-    const pendingCount = assignments.value.filter(a => 
-      a.subject_id === subject.id && !a.is_completed
-    ).length
-    
-    return {
-      ...subject,
-      pending_count: pendingCount
-    }
-  })
-  
-  return stats
-    .filter(s => s.pending_count > 0)
-    .sort((a, b) => b.pending_count - a.pending_count)
     .slice(0, 5)
 })
 
-// Fonctions utilitaires
-function formatDueDate(dateString) {
-  const date = new Date(dateString)
-  const today = new Date()
-  const tomorrow = new Date(today)
-  tomorrow.setDate(today.getDate() + 1)
-  
-  if (date.toDateString() === today.toDateString()) {
-    return "Aujourd'hui"
-  } else if (date.toDateString() === tomorrow.toDateString()) {
-    return "Demain"
-  } else {
-    return new Intl.DateTimeFormat('fr-FR', { 
-      weekday: 'long', 
-      day: 'numeric', 
-      month: 'long' 
-    }).format(date)
-  }
+// Helpers
+const getSubjectName = (subjectId) => {
+  const subject = subjects.value.find(s => s.id === subjectId)
+  return subject ? subject.name : 'Matière inconnue'
 }
 
-function getDueDateClass(dateString) {
-  const date = new Date(dateString)
-  const today = new Date()
-  const diffTime = date.getTime() - today.getTime()
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  
-  if (diffDays < 0) {
-    return 'text-red-600' // En retard
-  } else if (diffDays <= 1) {
-    return 'text-orange-600' // Urgent
-  } else if (diffDays <= 3) {
-    return 'text-yellow-600' // Bientôt
-  }
-  return 'text-gray-600' // Normal
+const getSubjectInitials = (subjectId) => {
+  const name = getSubjectName(subjectId)
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
 }
 
-// Fonctions de chargement des données
+const colors = ['bg-gradient-to-br from-blue-500 to-indigo-600', 'bg-gradient-to-br from-purple-500 to-pink-600', 'bg-gradient-to-br from-green-500 to-emerald-600', 'bg-gradient-to-br from-orange-500 to-amber-600', 'bg-gradient-to-br from-red-500 to-rose-600']
+const getSubjectColor = (subjectId) => {
+  return colors[subjectId % colors.length]
+}
+
+const formatDate = (date) => {
+  const d = new Date(date)
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+}
+
+const formatDaysLeft = (dueDate) => {
+  const now = new Date()
+  const due = new Date(dueDate)
+  const diffDays = Math.ceil((due - now) / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) return 'Aujourd\'hui'
+  if (diffDays === 1) return 'Demain'
+  if (diffDays < 0) return 'En retard'
+  return `Dans ${diffDays}j`
+}
+
+const getUrgencyStyle = (dueDate) => {
+  const now = new Date()
+  const due = new Date(dueDate)
+  const diffDays = Math.ceil((due - now) / (1000 * 60 * 60 * 24))
+  
+  if (diffDays < 0) return 'bg-red-100 text-red-700'
+  if (diffDays === 0) return 'bg-red-500 text-white'
+  if (diffDays === 1) return 'bg-orange-500 text-white'
+  if (diffDays <= 3) return 'bg-yellow-100 text-yellow-700'
+  return 'bg-gray-100 text-gray-700'
+}
+
+const getSubjectAssignmentsCount = (subjectId) => {
+  return assignments.value.filter(a => a.subject_id === subjectId && !a.is_completed).length
+}
+
+const getSubjectUrgentCount = (subjectId) => {
+  const now = new Date()
+  return assignments.value.filter(a => {
+    if (a.is_completed || a.subject_id !== subjectId) return false
+    const dueDate = new Date(a.due_date)
+    const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24))
+    return diffDays >= 0 && diffDays <= 3
+  }).length
+}
+
+const getSubjectUrgencyBadge = (subjectId) => {
+  const urgentCount = getSubjectUrgentCount(subjectId)
+  if (urgentCount === 0) return 'bg-green-100 text-green-700'
+  if (urgentCount >= 3) return 'bg-red-100 text-red-700'
+  return 'bg-orange-100 text-orange-700'
+}
+
+// API
 async function loadData() {
   if (typeof window === 'undefined') return
-  
   const token = localStorage.getItem('token')
   if (!token) {
     await navigateTo('/login')
     return
   }
   
-  // Récupérer le nom de l'utilisateur
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
-  userName.value = user.firstname || 'lycéen'
+  // Charger le nom utilisateur depuis localStorage
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    userName.value = user.firstname || user.username || 'Étudiant'
+  } catch (e) {
+    console.error('Error loading user:', e)
+  }
   
   await Promise.all([loadSubjects(), loadAssignments()])
 }
 
 async function loadSubjects() {
   try {
-    console.log('=== CHARGEMENT MATIÈRES DASHBOARD ===')
     const token = localStorage.getItem('token')
-    console.log('Token présent:', !!token)
-    
-    if (!token) {
-      console.log('Pas de token, redirection')
-      await navigateTo('/login')
-      return
-    }
-    
-    console.log('Envoi requête subjects...')
     const response = await $fetch('/api/subjects', {
       headers: { Authorization: `Bearer ${token}` }
     })
-    console.log('Réponse subjects:', response)
     subjects.value = response.data || []
-    console.log('Matières chargées:', subjects.value.length)
   } catch (error) {
-    console.error('=== ERREUR MATIÈRES ===')
-    console.error('Type:', error.constructor.name)
-    console.error('Message:', error.message)
-    console.error('Status:', error.status || error.statusCode)
-    console.error('Full error:', error)
+    console.error('Erreur matières:', error)
   }
 }
 
 async function loadAssignments() {
   try {
     loading.value = true
-    console.log('=== CHARGEMENT DEVOIRS DASHBOARD ===')
     const token = localStorage.getItem('token')
-    
-    console.log('Envoi requête assignments...')
     const response = await $fetch('/api/assignments', {
       headers: { Authorization: `Bearer ${token}` }
     })
-    console.log('Réponse assignments:', response)
     assignments.value = response.data || []
-    console.log('Devoirs chargés:', assignments.value.length)
   } catch (error) {
-    console.error('=== ERREUR DEVOIRS ===')
-    console.error('Type:', error.constructor.name)
-    console.error('Message:', error.message)
-    console.error('Status:', error.status || error.statusCode)
-    console.error('Full error:', error)
+    console.error('Erreur devoirs:', error)
     if (error.status === 401) {
       localStorage.removeItem('token')
       await navigateTo('/login')
@@ -382,9 +481,10 @@ async function loadAssignments() {
   }
 }
 
-// Charger les données au montage
 onMounted(() => {
   nextTick(() => {
+    // Générer une citation aléatoire après le montage pour éviter les problèmes d'hydration
+    motivationalQuote.value = quotes[Math.floor(Math.random() * quotes.length)]
     loadData()
   })
 })

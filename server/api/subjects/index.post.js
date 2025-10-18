@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const { userId } = verifyToken(event)
     
     const body = await readBody(event)
-    const { name, color } = body
+    const { name, color, teacher, schedule, icon } = body
     
     // Validation
     if (!name || !name.trim()) {
@@ -23,8 +23,8 @@ export default defineEventHandler(async (event) => {
     }
     
     const result = await executeQuery(
-      'INSERT INTO subjects (user_id, name, color) VALUES (?, ?, ?)',
-      [userId, name.trim(), color]
+      'INSERT INTO subjects (user_id, name, color, teacher, schedule, icon) VALUES (?, ?, ?, ?, ?, ?)',
+      [userId, name.trim(), color, teacher || null, schedule || null, icon || 'book']
     )
     
     // Récupérer la matière créée

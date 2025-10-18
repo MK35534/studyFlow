@@ -1,10 +1,11 @@
 <template>
   <!-- Overlay -->
-  <div
-    v-if="show"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    @click="closeModal"
-  >
+  <Teleport to="body">
+    <div
+      v-if="show"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      @click="closeModal"
+    >
     <!-- Modal -->
     <div
       class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden"
@@ -130,6 +131,7 @@
       </div>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup>

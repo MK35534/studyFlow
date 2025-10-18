@@ -1,10 +1,11 @@
 <template>
   <!-- Overlay -->
-  <div
-    v-if="show"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 pt-[20vh]"
-    @click="closeModal"
-  >
+  <Teleport to="body">
+    <div
+      v-if="show"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 pt-[20vh]"
+      @click="closeModal"
+    >
     <!-- Palette -->
     <div
       class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden transform transition-all"
@@ -103,6 +104,7 @@
       </div>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup>
