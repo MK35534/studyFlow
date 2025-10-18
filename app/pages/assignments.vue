@@ -43,7 +43,7 @@
           <button 
             @click="showAddForm = true"
             :disabled="loading || subjects.length === 0"
-            class="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5"
+            class="no-swipe group relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5"
           >
             <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
             <svg class="w-5 h-5 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +77,7 @@
     </div>
 
     <!-- Formulaire d'ajout moderne -->
-    <div v-if="showAddForm" class="relative overflow-hidden bg-gradient-to-br from-white dark:from-gray-800 to-blue-50/30 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-8 shadow-lg transition-colors duration-300">
+    <div v-if="showAddForm" class="no-swipe relative overflow-hidden bg-gradient-to-br from-white dark:from-gray-800 to-blue-50/30 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-8 shadow-lg transition-colors duration-300">
       <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-100 dark:from-blue-900/30 to-transparent rounded-full blur-3xl opacity-30"></div>
       <div class="relative">
         <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3 transition-colors duration-300">
@@ -167,7 +167,7 @@
     </div>
 
     <!-- Filtres modernes -->
-    <div class="flex gap-3 mb-6 overflow-x-auto pb-2">
+    <div class="no-swipe flex gap-3 mb-6 overflow-x-auto pb-2">
       <button
         @click="currentFilter = 'all'"
         :class="[
@@ -219,34 +219,18 @@
     </div>
 
     <!-- Liste des devoirs - Design moderne -->
-    <div v-else-if="filteredAssignments.length > 0" class="space-y-4 no-swipe">
-      <!-- Wrapper pour swipe-to-delete -->
+    <div v-else-if="filteredAssignments.length > 0" class="space-y-4">
       <div
         v-for="(assignment, index) in filteredAssignments" 
         :key="assignment.id"
-        class="relative touch-manipulation"
+        :class="[
+          'no-swipe group relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-xl hover:-translate-y-1',
+          assignment.is_completed 
+            ? 'bg-gradient-to-br from-green-50 to-emerald-50/30 border-green-200 hover:border-green-300 dark:from-green-900/20 dark:to-emerald-900/10 dark:border-green-800 dark:hover:border-green-700' 
+            : 'bg-gradient-to-br from-white to-blue-50/20 border-gray-200 hover:border-blue-300 dark:from-gray-800 dark:to-gray-900 dark:border-gray-700 dark:hover:border-blue-600'
+        ]"
+        :style="{ animationDelay: `${index * 0.05}s` }"
       >
-        <!-- Background de suppression (visible au swipe) -->
-        <div class="swipe-delete-bg">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-          <span class="ml-2">Supprimer</span>
-        </div>
-        
-        <!-- Carte de devoir (avec swipe) -->
-        <div 
-          :class="[
-            'swipe-delete-container group relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-xl hover:-translate-y-1',
-            assignment.is_completed 
-              ? 'bg-gradient-to-br from-green-50 to-emerald-50/30 border-green-200 hover:border-green-300 dark:from-green-900/20 dark:to-emerald-900/10 dark:border-green-800 dark:hover:border-green-700' 
-              : 'bg-gradient-to-br from-white to-blue-50/20 border-gray-200 hover:border-blue-300 dark:from-gray-800 dark:to-gray-900 dark:border-gray-700 dark:hover:border-blue-600'
-          ]"
-          :style="{ animationDelay: `${index * 0.05}s`, transform: `translateX(${getSwipeTransform(assignment.id)}px)` }"
-          @touchstart="(e) => handleSwipeStart(e, assignment)"
-          @touchmove="(e) => handleSwipeMove(e, assignment)"
-          @touchend="() => handleSwipeEnd(assignment)"
-        >
         <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 dark:from-blue-900/30 to-transparent rounded-full blur-3xl opacity-20"></div>
         <div class="relative p-5 md:p-6">
           <div class="flex items-start gap-4">
@@ -348,8 +332,6 @@
           </div>
         </div>
       </div>
-      <!-- Fin du wrapper swipe-to-delete -->
-      </div>
     </div>
 
     <!-- État vide -->
@@ -375,7 +357,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick } from 'vue'
-import { usePullToRefresh, useSwipeToDelete } from '~/composables/useTouchOptimizations'
+import { usePullToRefresh } from '~/composables/useTouchOptimizations'
 
 const assignments = ref([])
 const subjects = ref([])
@@ -425,46 +407,6 @@ const {
   // Recharger les devoirs et matières
   await Promise.all([loadAssignments(), loadSubjects()])
 })
-
-// Swipe-to-delete sur les cartes
-const swipeStates = ref({}) // {assignmentId: translateX}
-
-const handleSwipeStart = (e, assignment) => {
-  if (!swipeStates.value[assignment.id]) {
-    swipeStates.value[assignment.id] = { startX: e.touches[0].clientX, currentX: 0 }
-  } else {
-    swipeStates.value[assignment.id].startX = e.touches[0].clientX
-  }
-}
-
-const handleSwipeMove = (e, assignment) => {
-  const state = swipeStates.value[assignment.id]
-  if (!state) return
-  
-  const deltaX = e.touches[0].clientX - state.startX
-  // Limiter le swipe vers la gauche uniquement (valeurs négatives)
-  if (deltaX < 0) {
-    state.currentX = Math.max(deltaX, -120) // Max -120px
-  }
-}
-
-const handleSwipeEnd = async (assignment) => {
-  const state = swipeStates.value[assignment.id]
-  if (!state) return
-  
-  // Si le swipe dépasse -80px, supprimer
-  if (state.currentX < -80) {
-    await deleteAssignment(assignment.id)
-  }
-  
-  // Reset
-  state.currentX = 0
-  state.startX = 0
-}
-
-const getSwipeTransform = (assignmentId) => {
-  return swipeStates.value[assignmentId]?.currentX || 0
-}
 
 function getSubjectName(subjectId) {
   const subject = subjects.value.find(s => s.id === subjectId)

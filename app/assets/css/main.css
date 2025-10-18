@@ -207,7 +207,9 @@ nav .pointer-events-auto {
 
 /* Swipe-to-delete */
 .swipe-delete-container {
+  position: relative;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2; /* Au-dessus du background rouge */
 }
 
 .swipe-delete-bg {
@@ -220,4 +222,6 @@ nav .pointer-events-auto {
   padding-right: 1.5rem;
   color: white;
   font-weight: 600;
+  border-radius: 1rem; /* Même arrondi que la carte */
+  z-index: 1; /* Derrière la carte */
 }

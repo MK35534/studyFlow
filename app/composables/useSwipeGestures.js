@@ -12,8 +12,8 @@ export const useSwipeGestures = (options = {}) => {
   // Configuration par défaut
   const {
     enabled = true,
-    minSwipeDistance = 50, // Distance minimale en pixels pour déclencher le swipe
-    maxSwipeTime = 300, // Temps maximum en ms pour un swipe rapide
+    minSwipeDistance = 100, // Distance minimale en pixels pour déclencher le swipe (augmenté de 50 à 100)
+    maxSwipeTime = 400, // Temps maximum en ms pour un swipe rapide (augmenté de 300 à 400)
     horizontalNavigation = true, // Activer la navigation horizontale
     verticalActions = false, // Activer les actions verticales (pull-to-refresh, etc.)
     onSwipeLeft = null,
@@ -134,6 +134,13 @@ export const useSwipeGestures = (options = {}) => {
    */
   const handleTouchEnd = () => {
     if (!enabled || !isSwiping.value) return
+
+    // Ignorer les touches très courtes (probablement des clics)
+    const touchDuration = Date.now() - touchStartTime.value
+    if (touchDuration < 120) { // Moins de 120ms = clic rapide, pas un swipe
+      isSwiping.value = false
+      return
+    }
 
     const direction = detectSwipeDirection()
 
