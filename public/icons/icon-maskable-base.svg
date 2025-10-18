@@ -1,0 +1,21 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient avec coins arrondis -->
+  <defs>
+    <linearGradient id="bgMask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background arrondi (safe zone) -->
+  <rect width="512" height="512" rx="128" fill="url(#bgMask)"/>
+  
+  <!-- Cercle décoratif en haut -->
+  <circle cx="256" cy="180" r="60" fill="white" opacity="0.15"/>
+  
+  <!-- Lettre S (centrée dans safe zone) -->
+  <text x="256" y="325" font-family="Arial, sans-serif" font-size="280" font-weight="bold" fill="white" text-anchor="middle">S</text>
+  
+  <!-- Petit cercle décoratif -->
+  <circle cx="384" cy="148" r="40" fill="white" opacity="0.25"/>
+</svg>

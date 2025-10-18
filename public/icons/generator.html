@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Générateur d'icônes StudyFlow</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f3f4f6;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #3b82f6;
+      margin-bottom: 10px;
+    }
+    .description {
+      color: #6b7280;
+      margin-bottom: 30px;
+    }
+    canvas {
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .preview {
+      text-align: center;
+    }
+    .preview canvas {
+      width: 100%;
+      height: auto;
+    }
+    .size-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Générateur d'Icônes PWA</h1>
+    <p class="description">Génère automatiquement toutes les icônes nécessaires pour StudyFlow</p>
+    
+    <div>
+      <button onclick="generateIcons()">🚀 Générer toutes les icônes</button>
+      <button onclick="downloadAll()">📥 Télécharger le ZIP</button>
+    </div>
+
+    <div class="grid" id="previews"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script>
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+    const canvases = {};
+
+    function drawIcon(canvas, size, maskable = false) {
+      const ctx = canvas.getContext('2d');
+      canvas.width = size;
+      canvas.height = size;
+
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#3b82f6');
+      gradient.addColorStop(1, '#2563eb');
+      
+      if (maskable) {
+        // Rounded pour maskable
+        const radius = size * 0.25;
+        ctx.beginPath();
+        ctx.moveTo(radius, 0);
+        ctx.lineTo(size - radius, 0);
+        ctx.quadraticCurveTo(size, 0, size, radius);
+        ctx.lineTo(size, size - radius);
+        ctx.quadraticCurveTo(size, size, size - radius, size);
+        ctx.lineTo(radius, size);
+        ctx.quadraticCurveTo(0, size, 0, size - radius);
+        ctx.lineTo(0, radius);
+        ctx.quadraticCurveTo(0, 0, radius, 0);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      } else {
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, size, size);
+      }
+
+      // Lettre "S" stylisée et moderne
+      const centerX = size / 2;
+      const centerY = size / 2;
+      
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size * 0.55}px Arial, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('S', centerX, centerY);
+
+      // Petit cercle décoratif en haut à droite (pour différencier)
+      if (size >= 96) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.beginPath();
+        ctx.arc(size * 0.75, size * 0.25, size * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function generateIcons() {
+      const previewsDiv = document.getElementById('previews');
+      previewsDiv.innerHTML = '';
+
+      // Icônes standards
+      sizes.forEach(size => {
+        const div = document.createElement('div');
+        div.className = 'preview';
+        
+        const canvas = document.createElement('canvas');
+        drawIcon(canvas, size, false);
+        canvases[`icon-${size}x${size}.png`] = canvas;
+        
+        div.appendChild(canvas);
+        
+        const label = document.createElement('div');
+        label.className = 'size-label';
+        label.textContent = `${size}×${size}`;
+        div.appendChild(label);
+        
+        previewsDiv.appendChild(div);
+      });
+
+      // Icônes maskables
+      [192, 512].forEach(size => {
+        const div = document.createElement('div');
+        div.className = 'preview';
+        
+        const canvas = document.createElement('canvas');
+        drawIcon(canvas, size, true);
+        canvases[`icon-maskable-${size}x${size}.png`] = canvas;
+        
+        div.appendChild(canvas);
+        
+        const label = document.createElement('div');
+        label.className = 'size-label';
+        label.textContent = `${size}×${size} (maskable)`;
+        div.appendChild(label);
+        
+        previewsDiv.appendChild(div);
+      });
+
+      // Apple touch icon
+      const div = document.createElement('div');
+      div.className = 'preview';
+      const canvas = document.createElement('canvas');
+      drawIcon(canvas, 180, false);
+      canvases['apple-touch-icon.png'] = canvas;
+      div.appendChild(canvas);
+      const label = document.createElement('div');
+      label.className = 'size-label';
+      label.textContent = '180×180 (Apple)';
+      div.appendChild(label);
+      previewsDiv.appendChild(div);
+    }
+
+    async function downloadAll() {
+      if (Object.keys(canvases).length === 0) {
+        alert('Génère les icônes d\'abord !');
+        return;
+      }
+
+      const zip = new JSZip();
+
+      for (const [filename, canvas] of Object.entries(canvases)) {
+        const blob = await new Promise(resolve => canvas.toBlob(resolve));
+        zip.file(filename, blob);
+      }
+
+      const content = await zip.generateAsync({type: 'blob'});
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(content);
+      link.download = 'studyflow-icons.zip';
+      link.click();
+    }
+
+    // Générer au chargement
+    window.onload = generateIcons;
+  </script>
+</body>
+</html>

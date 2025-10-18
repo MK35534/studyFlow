@@ -1,7 +1,12 @@
 <template>
-  <NuxtLayout :name="layout">
-    <NuxtPage />
-  </NuxtLayout>
+  <div>
+    <NuxtLayout :name="layout">
+      <NuxtPage />
+    </NuxtLayout>
+    
+    <!-- PWA Install Prompt -->
+    <PWAInstallPrompt />
+  </div>
 </template>
 
 <script setup>
