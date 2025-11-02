@@ -252,8 +252,13 @@
 import { ref, computed, onMounted, watch } from 'vue'
 
 definePageMeta({
-  layout: 'desktop'
+  layout: 'desktop',
+  ssr: false,
+  middleware: 'auth'
 })
+
+// Authentification
+const { getToken } = useAuth()
 
 // États réactifs
 const selectedAssignment = ref(null)
@@ -326,7 +331,7 @@ const loadAssignments = async () => {
     
     loadingAssignments.value = true
     
-    const token = localStorage.getItem('token')
+    const token = getToken()
     if (!token) {
       await navigateTo('/login')
       return
@@ -381,7 +386,7 @@ const handleSessionComplete = async (session) => {
   try {
     if (process.server) return
     
-    const token = localStorage.getItem('token')
+    const token = getToken()
     if (!token) return
     
     await $fetch('/api/focus/sessions', {
@@ -434,7 +439,7 @@ const loadSessionHistory = () => {
 onMounted(() => {
   // Vérifier l'authentification avant tout
   if (process.client) {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     if (!token) {
       navigateTo('/login')
       return
@@ -465,3 +470,4 @@ onMounted(() => {
   }
 })
 </script>
+

@@ -1,6 +1,5 @@
 import { getPool } from '~/lib/database'
-import { getRequestHeader } from 'h3'
-import jwt from 'jsonwebtoken'
+import { verifyToken } from '~/lib/auth'
 
 /**
  * PATCH /api/notifications/[id]/read
@@ -11,18 +10,8 @@ export default defineEventHandler(async (event) => {
   let connection
 
   try {
-    // 1. Vérifier l'authentification
-    const authHeader = getRequestHeader(event, 'authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return {
-        success: false,
-        message: 'Token manquant'
-      }
-    }
-
-    const token = authHeader.substring(7)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'votre_secret_jwt_super_securise_2024')
-    const userId = decoded.userId // ✅ Changé de decoded.id à decoded.userId
+    // 1. Vérifier l'authentification via cookies ou header (throws 401 if invalid)
+    const userId = verifyToken(event)
 
     // 2. Récupérer l'ID de la notification
     const notificationId = event.context.params.id

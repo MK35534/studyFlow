@@ -5,24 +5,24 @@
       <div class="flex items-center justify-around px-3 py-3">
         <!-- Home / Dashboard -->
         <NuxtLink 
-          to="/"
+          to="/dashboard"
           class="flex flex-col items-center justify-center flex-1 min-w-[60px] group relative touch-manipulation"
         >
           <!-- Floating indicator -->
           <div 
-            v-if="isActive('/')"
+            v-if="isActive('/dashboard')"
             :class="`absolute -top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-gradient-to-r ${theme.gradient} shadow-lg transition-all duration-300`"
           ></div>
           
           <div 
             class="relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 mb-1.5"
-            :class="isActive('/') 
+            :class="isActive('/dashboard') 
               ? `bg-gradient-to-br ${theme.gradient} shadow-lg shadow-purple-500/30 scale-105` 
               : 'bg-gray-100/50 dark:bg-gray-800/50 group-hover:bg-gray-200/80 dark:group-hover:bg-gray-700/80 group-hover:scale-105 group-active:scale-95'"
           >
             <svg 
               class="w-6 h-6 transition-all duration-300" 
-              :class="isActive('/') ? 'text-white drop-shadow-md' : 'text-gray-600 dark:text-gray-400'" 
+              :class="isActive('/dashboard') ? 'text-white drop-shadow-md' : 'text-gray-600 dark:text-gray-400'" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -37,7 +37,7 @@
           </div>
           <span 
             class="text-[11px] font-bold transition-all duration-300 tracking-tight" 
-            :class="isActive('/') 
+            :class="isActive('/dashboard') 
               ? `bg-gradient-to-r ${theme.gradient} bg-clip-text text-transparent` 
               : 'text-gray-600 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-gray-300'"
           >
@@ -47,23 +47,23 @@
 
         <!-- Matières -->
         <NuxtLink 
-          to="/subjects"
+          to="/dashboard/subjects"
           class="flex flex-col items-center justify-center flex-1 min-w-[60px] group relative touch-manipulation"
         >
           <div 
-            v-if="isActive('/subjects')"
+            v-if="isActive('/dashboard/subjects')"
             :class="`absolute -top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-gradient-to-r ${theme.gradient} shadow-lg transition-all duration-300`"
           ></div>
           
           <div 
             class="relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 mb-1.5"
-            :class="isActive('/subjects') 
+            :class="isActive('/dashboard/subjects') 
               ? `bg-gradient-to-br ${theme.gradient} shadow-lg shadow-blue-500/30 scale-105` 
               : 'bg-gray-100/50 dark:bg-gray-800/50 group-hover:bg-gray-200/80 dark:group-hover:bg-gray-700/80 group-hover:scale-105 group-active:scale-95'"
           >
             <svg 
               class="w-6 h-6 transition-all duration-300" 
-              :class="isActive('/subjects') ? 'text-white drop-shadow-md' : 'text-gray-600 dark:text-gray-400'" 
+              :class="isActive('/dashboard/subjects') ? 'text-white drop-shadow-md' : 'text-gray-600 dark:text-gray-400'" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -78,7 +78,7 @@
           </div>
           <span 
             class="text-[11px] font-bold transition-all duration-300 tracking-tight" 
-            :class="isActive('/subjects') 
+            :class="isActive('/dashboard/subjects') 
               ? `bg-gradient-to-r ${theme.gradient} bg-clip-text text-transparent` 
               : 'text-gray-600 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-gray-300'"
           >
@@ -88,7 +88,7 @@
 
         <!-- Devoirs (centre avec badge) -->
         <NuxtLink 
-          to="/assignments"
+          to="/dashboard/assignments"
           class="flex flex-col items-center justify-center flex-1 min-w-[60px] group relative touch-manipulation"
         >
           <!-- Badge compteur urgents - design amélioré -->
@@ -100,19 +100,19 @@
           </div>
           
           <div 
-            v-if="isActive('/assignments')"
+            v-if="isActive('/dashboard/assignments')"
             :class="`absolute -top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-gradient-to-r ${theme.gradient} shadow-lg transition-all duration-300`"
           ></div>
           
           <div 
             class="relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 mb-1.5"
-            :class="isActive('/assignments') 
+            :class="isActive('/dashboard/assignments') 
               ? `bg-gradient-to-br ${theme.gradient} shadow-lg shadow-indigo-500/30 scale-105` 
               : 'bg-gray-100/50 dark:bg-gray-800/50 group-hover:bg-gray-200/80 dark:group-hover:bg-gray-700/80 group-hover:scale-105 group-active:scale-95'"
           >
             <svg 
               class="w-6 h-6 transition-all duration-300" 
-              :class="isActive('/assignments') ? 'text-white drop-shadow-md' : 'text-gray-600 dark:text-gray-400'" 
+              :class="isActive('/dashboard/assignments') ? 'text-white drop-shadow-md' : 'text-gray-600 dark:text-gray-400'" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -127,7 +127,7 @@
           </div>
           <span 
             class="text-[11px] font-bold transition-all duration-300 tracking-tight" 
-            :class="isActive('/assignments') 
+            :class="isActive('/dashboard/assignments') 
               ? `bg-gradient-to-r ${theme.gradient} bg-clip-text text-transparent` 
               : 'text-gray-600 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-gray-300'"
           >
@@ -135,25 +135,15 @@
           </span>
         </NuxtLink>
 
-        <!-- Calendrier -->
-        <NuxtLink 
-          to="/calendar"
-          class="flex flex-col items-center justify-center flex-1 min-w-[60px] group relative touch-manipulation"
+        <!-- Calendrier - Bientôt disponible -->
+        <div 
+          class="flex flex-col items-center justify-center flex-1 min-w-[60px] group relative touch-manipulation opacity-50 cursor-not-allowed"
         >
           <div 
-            v-if="isActive('/calendar')"
-            :class="`absolute -top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-gradient-to-r ${theme.gradient} shadow-lg transition-all duration-300`"
-          ></div>
-          
-          <div 
-            class="relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 mb-1.5"
-            :class="isActive('/calendar') 
-              ? `bg-gradient-to-br ${theme.gradient} shadow-lg shadow-cyan-500/30 scale-105` 
-              : 'bg-gray-100/50 dark:bg-gray-800/50 group-hover:bg-gray-200/80 dark:group-hover:bg-gray-700/80 group-hover:scale-105 group-active:scale-95'"
+            class="relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 mb-1.5 bg-gray-100/50 dark:bg-gray-800/50"
           >
             <svg 
-              class="w-6 h-6 transition-all duration-300" 
-              :class="isActive('/calendar') ? 'text-white drop-shadow-md' : 'text-gray-600 dark:text-gray-400'" 
+              class="w-6 h-6 transition-all duration-300 text-gray-600 dark:text-gray-400" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -167,34 +157,31 @@
             </svg>
           </div>
           <span 
-            class="text-[11px] font-bold transition-all duration-300 tracking-tight" 
-            :class="isActive('/calendar') 
-              ? `bg-gradient-to-r ${theme.gradient} bg-clip-text text-transparent` 
-              : 'text-gray-600 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-gray-300'"
+            class="text-[11px] font-bold transition-all duration-300 tracking-tight text-gray-600 dark:text-gray-500"
           >
-            Planning
+            Bientôt
           </span>
-        </NuxtLink>
+        </div>
 
         <!-- Focus -->
         <NuxtLink 
-          to="/focus"
+          to="/dashboard/focus"
           class="flex flex-col items-center justify-center flex-1 min-w-[60px] group relative touch-manipulation"
         >
           <div 
-            v-if="isActive('/focus')"
+            v-if="isActive('/dashboard/focus')"
             :class="`absolute -top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-gradient-to-r ${theme.gradient} shadow-lg transition-all duration-300`"
           ></div>
           
           <div 
             class="relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 mb-1.5"
-            :class="isActive('/focus') 
+            :class="isActive('/dashboard/focus') 
               ? `bg-gradient-to-br ${theme.gradient} shadow-lg shadow-emerald-500/30 scale-105` 
               : 'bg-gray-100/50 dark:bg-gray-800/50 group-hover:bg-gray-200/80 dark:group-hover:bg-gray-700/80 group-hover:scale-105 group-active:scale-95'"
           >
             <svg 
               class="w-6 h-6 transition-all duration-300" 
-              :class="isActive('/focus') ? 'text-white drop-shadow-md' : 'text-gray-600 dark:text-gray-400'" 
+              :class="isActive('/dashboard/focus') ? 'text-white drop-shadow-md' : 'text-gray-600 dark:text-gray-400'" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"

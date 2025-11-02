@@ -3,8 +3,8 @@ import { verifyToken } from '~/lib/auth.js'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Vérifier l'authentification
-    const { userId } = verifyToken(event)
+    // Vérifier l'authentification (throws 401 if invalid)
+    const userId = verifyToken(event)
     
     const id = getRouterParam(event, 'id')
     

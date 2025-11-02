@@ -186,6 +186,9 @@
 import { ref, computed, watch } from 'vue'
 import { useToast } from '~/composables/useToats'
 
+// Authentification
+const { getToken } = useAuth()
+
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -214,7 +217,7 @@ const loadNotifications = async () => {
   loading.value = true
   
   try {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     const response = await $fetch('/api/notifications', {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -241,7 +244,7 @@ const closePanel = () => {
 // Marquer comme lu/non-lu
 const toggleRead = async (notification) => {
   try {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     const newReadState = !notification.is_read
 
     const response = await $fetch(`/api/notifications/${notification.id}/read`, {
@@ -267,7 +270,7 @@ const toggleRead = async (notification) => {
 // Marquer tout comme lu
 const markAllAsRead = async () => {
   try {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     const response = await $fetch('/api/notifications/mark-all-read', {
       method: 'POST',
       headers: {
@@ -293,7 +296,7 @@ const clearAll = async () => {
   }
 
   try {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     const response = await $fetch('/api/notifications/clear-all', {
       method: 'POST',
       headers: {
@@ -316,7 +319,7 @@ const clearAll = async () => {
 // Supprimer une notification
 const deleteNotification = async (id) => {
   try {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     const response = await $fetch(`/api/notifications/${id}`, {
       method: 'DELETE',
       headers: {
@@ -381,3 +384,4 @@ defineExpose({
   loadNotifications
 })
 </script>
+

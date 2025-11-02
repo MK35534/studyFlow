@@ -1,491 +1,377 @@
 <template>
-  <div class="min-h-screen">
-    <title>StudyFlow - Dashboard</title>
+  <div class="landing-page overflow-x-hidden">
+    <!-- Scroll progress bar -->
+    <ScrollProgressBar />
     
-    <!-- Header avec salutation personnalisée -->
-    <div class="mb-8">
-      <div class="relative">
-        <div :class="`absolute inset-0 bg-gradient-to-r ${theme.gradientBg} rounded-2xl opacity-50 blur-3xl`"></div>
-        <div class="relative">
-          <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">
-            {{ greeting }}, {{ userName }} 👋
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400 text-base md:text-lg transition-colors duration-300">
-            {{ motivationalQuote }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stats rapides -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <!-- Devoirs urgents -->
-      <div :class="`group relative overflow-hidden bg-gradient-to-br ${theme.gradientBg} dark:from-gray-800 dark:to-gray-900 to-white rounded-2xl p-6 border-2 ${theme.border} dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300`">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-red-100 dark:from-red-900/30 to-transparent rounded-full blur-2xl opacity-50"></div>
-        <div class="relative">
-          <div class="p-3 bg-white dark:bg-gray-800/50 rounded-xl mb-4 inline-flex shadow-sm transition-colors duration-300">
-            <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <p class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 transition-colors duration-300">{{ stats.urgent }}</p>
-          <p class="text-sm text-gray-600 dark:text-gray-400 font-medium transition-colors duration-300">Devoirs urgents</p>
-          <p class="text-xs text-red-600 dark:text-red-400 font-semibold mt-1 transition-colors duration-300">≤ 3 jours</p>
-        </div>
-      </div>
-
-      <!-- Complétés cette semaine -->
-      <div :class="`group relative overflow-hidden bg-gradient-to-br from-green-50 dark:from-gray-800 to-white dark:to-gray-900 rounded-2xl p-6 border-2 border-green-100 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300`">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-100 dark:from-green-900/30 to-transparent rounded-full blur-2xl opacity-50"></div>
-        <div class="relative">
-          <div class="p-3 bg-white dark:bg-gray-800/50 rounded-xl mb-4 inline-flex shadow-sm transition-colors duration-300">
-            <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <p class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 transition-colors duration-300">{{ stats.completedThisWeek }}</p>
-          <p class="text-sm text-gray-600 dark:text-gray-400 font-medium transition-colors duration-300">Cette semaine</p>
-          <p class="text-xs text-green-600 dark:text-green-400 font-semibold mt-1 transition-colors duration-300">+{{ stats.weekProgress }}%</p>
-        </div>
-      </div>
-
-      <!-- Matières actives -->
-      <div :class="`group relative overflow-hidden bg-gradient-to-br ${theme.gradientBg} dark:from-gray-800 dark:to-gray-900 to-white rounded-2xl p-6 border-2 ${theme.border} dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300`">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-100 dark:from-blue-900/30 to-transparent rounded-full blur-2xl opacity-50"></div>
-        <div class="relative">
-          <div class="p-3 bg-white dark:bg-gray-800/50 rounded-xl mb-4 inline-flex shadow-sm transition-colors duration-300">
-            <svg class="w-6 h-6" :class="theme.text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          </div>
-          <p class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 transition-colors duration-300">{{ stats.totalSubjects }}</p>
-          <p class="text-sm text-gray-600 dark:text-gray-400 font-medium transition-colors duration-300">Matières</p>
-        </div>
-      </div>
-
-      <!-- Taux de réussite -->
-      <div :class="`group relative overflow-hidden bg-gradient-to-br from-purple-50 dark:from-gray-800 to-white dark:to-gray-900 rounded-2xl p-6 border-2 border-purple-100 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300`">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-100 dark:from-purple-900/30 to-transparent rounded-full blur-2xl opacity-50"></div>
-        <div class="relative">
-          <div class="p-3 bg-white dark:bg-gray-800/50 rounded-xl mb-4 inline-flex shadow-sm transition-colors duration-300">
-            <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-          </div>
-          <p class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 transition-colors duration-300">{{ stats.completionRate }}%</p>
-          <p class="text-sm text-gray-600 dark:text-gray-400 font-medium transition-colors duration-300">Taux de réussite</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Grille principale : Devoirs urgents + Prochains cours -->
-    <div class="grid md:grid-cols-2 gap-6 mb-8">
-      <!-- Devoirs urgents -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-red-50 dark:from-red-900/20 to-white dark:to-gray-800 transition-colors duration-300">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="p-2 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-300">Devoirs urgents</h2>
+    <!-- Navigation bar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 transition-all duration-300" :class="{ 'shadow-lg': scrolled }">
+      <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Logo -->
+          <NuxtLink to="/" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl group-hover:scale-110 transition-transform">
+              S
             </div>
-            <NuxtLink to="/assignments" class="text-sm font-semibold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors duration-300">
-              Voir tout →
+            <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              StudyUp
+            </span>
+          </NuxtLink>
+
+          <!-- Desktop navigation -->
+          <div class="hidden md:flex items-center gap-8">
+            <a href="#features" @click.prevent="scrollTo('features')" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors cursor-pointer">
+              Fonctionnalités
+            </a>
+            <a href="#testimonials" @click.prevent="scrollTo('testimonials')" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors cursor-pointer">
+              Témoignages
+            </a>
+            <NuxtLink to="/login" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">
+              Se connecter
             </NuxtLink>
-          </div>
-        </div>
-        
-        <div class="p-6">
-          <div v-if="urgentAssignments.length === 0" class="text-center py-8">
-            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">Aucun devoir urgent !</p>
-            <p class="text-sm text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">Excellent travail 🎉</p>
-          </div>
-          
-          <div v-else class="space-y-3">
-            <div
-              v-for="assignment in urgentAssignments"
-              :key="assignment.id"
-              class="flex items-start gap-4 p-4 rounded-xl border-2 border-gray-100 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-800 hover:bg-red-50/50 dark:hover:bg-red-900/20 transition-all duration-200 group cursor-pointer"
-              @click="navigateTo('/assignments')"
+            <button 
+              @click="scrollTo('waitlist')"
+              class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:scale-105 hover:shadow-lg transition-all duration-300"
             >
-              <div :class="`flex-shrink-0 w-10 h-10 rounded-xl ${getSubjectColor(assignment.subject_id)} flex items-center justify-center text-white font-bold shadow-sm`">
-                {{ getSubjectInitials(assignment.subject_id) }}
-              </div>
-              
-              <div class="flex-1 min-w-0">
-                <h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-1 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                  {{ assignment.title }}
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors duration-300">{{ getSubjectName(assignment.subject_id) }}</p>
-                <div class="flex items-center gap-2">
-                  <span :class="`px-2 py-1 rounded-lg text-xs font-bold ${getUrgencyStyle(assignment.due_date)}`">
-                    {{ formatDaysLeft(assignment.due_date) }}
-                  </span>
-                  <span class="text-xs text-gray-500 dark:text-gray-500 transition-colors duration-300">{{ formatDate(assignment.due_date) }}</span>
-                </div>
-              </div>
-            </div>
+              Rejoindre la bêta
+            </button>
+            
+            <!-- Theme switcher -->
+            <button
+              @click="toggleDarkMode"
+              class="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              title="Toggle dark mode"
+            >
+              <svg v-if="isDarkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            </button>
           </div>
-        </div>
-      </div>
 
-      <!-- Prochains cours -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
-        <div :class="`p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r ${theme.gradientBg} dark:from-gray-800 to-white dark:to-gray-800 transition-colors duration-300`">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div :class="`p-2 bg-gradient-to-br ${theme.gradient} rounded-xl`">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <!-- Mobile menu button -->
+          <button
+            @click="mobileMenuOpen = !mobileMenuOpen"
+            class="md:hidden p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mobile menu -->
+        <transition name="slide-down">
+          <div v-if="mobileMenuOpen" class="md:hidden mt-4 pb-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+            <div class="flex flex-col gap-4">
+              <a href="#features" @click.prevent="scrollToMobile('features')" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors cursor-pointer">
+                Fonctionnalités
+              </a>
+              <a href="#testimonials" @click.prevent="scrollToMobile('testimonials')" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors cursor-pointer">
+                Témoignages
+              </a>
+              <NuxtLink to="/login" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">
+                Se connecter
+              </NuxtLink>
+              <button 
+                @click="scrollToMobile('waitlist')"
+                class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:scale-105 hover:shadow-lg transition-all duration-300"
+              >
+                Rejoindre la bêta
+              </button>
+              <button
+                @click="toggleDarkMode"
+                class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+              >
+                <svg v-if="isDarkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+                <span>{{ isDarkMode ? 'Mode clair' : 'Mode sombre' }}</span>
+              </button>
+            </div>
+          </div>
+        </transition>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="pt-20">
+      <HeroSection />
+      <ProblemSection />
+      <FeaturesSection />
+      <div id="testimonials">
+        <TestimonialsSection />
+      </div>
+      <CTASection />
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 dark:bg-black text-white py-12">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid md:grid-cols-4 gap-8 mb-8">
+          <!-- Brand -->
+          <div class="col-span-2">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                S
               </div>
-              <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-300">Aujourd'hui</h2>
+              <span class="text-2xl font-bold">StudyUp</span>
             </div>
-            <NuxtLink to="/calendar" :class="`text-sm font-semibold ${theme.text} hover:opacity-80 transition-opacity duration-300`">
-              Calendrier →
-            </NuxtLink>
+            <p class="text-gray-400 leading-relaxed">
+              L'outil tout-en-un qui aide les étudiants à s'organiser, rester concentrés et progresser sereinement.
+            </p>
+          </div>
+
+          <!-- Links -->
+          <div>
+            <h3 class="font-bold mb-4">Produit</h3>
+            <ul class="space-y-2 text-gray-400">
+              <li><a href="#features" @click.prevent="scrollTo('features')" class="hover:text-white transition-colors cursor-pointer">Fonctionnalités</a></li>
+              <li><a href="#testimonials" @click.prevent="scrollTo('testimonials')" class="hover:text-white transition-colors cursor-pointer">Témoignages</a></li>
+              <li><a href="#" class="hover:text-white transition-colors">Tarifs</a></li>
+              <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+            </ul>
+          </div>
+
+          <!-- Support -->
+          <div>
+            <h3 class="font-bold mb-4">Support</h3>
+            <ul class="space-y-2 text-gray-400">
+              <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+              <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
+              <li><a href="#" class="hover:text-white transition-colors">Confidentialité</a></li>
+              <li><a href="#" class="hover:text-white transition-colors">CGU</a></li>
+            </ul>
           </div>
         </div>
-        
-        <div class="p-6">
-          <div class="text-center py-8">
-            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">Emploi du temps bientôt disponible</p>
-            <p class="text-sm text-gray-400 dark:text-gray-500 mt-1 transition-colors duration-300">En attendant, consultez votre calendrier</p>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Raccourcis rapides -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 p-6 mb-8 transition-colors duration-300">
-      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 transition-colors duration-300">
-        <svg class="w-6 h-6" :class="theme.text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-        Actions rapides
-      </h2>
-      
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <button
-          @click="navigateTo('/assignments')"
-          :class="`p-4 rounded-xl border-2 ${theme.border} dark:border-gray-700 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group`"
-        >
-          <div :class="`p-3 bg-gradient-to-br ${theme.gradient} rounded-xl mb-3 inline-flex`">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-          </div>
-          <p class="font-semibold text-gray-900 dark:text-gray-100 text-sm transition-colors duration-300">Ajouter un devoir</p>
-        </button>
-
-        <button
-          @click="navigateTo('/subjects')"
-          :class="`p-4 rounded-xl border-2 border-green-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group`"
-        >
-          <div class="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl mb-3 inline-flex">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          </div>
-          <p class="font-semibold text-gray-900 dark:text-gray-100 text-sm transition-colors duration-300">Gérer matières</p>
-        </button>
-
-        <button
-          @click="navigateTo('/focus')"
-          class="p-4 rounded-xl border-2 border-purple-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group"
-        >
-          <div class="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl mb-3 inline-flex">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <p class="font-semibold text-gray-900 dark:text-gray-100 text-sm transition-colors duration-300">Mode Focus</p>
-        </button>
-
-        <button
-          @click="navigateTo('/calendar')"
-          class="p-4 rounded-xl border-2 border-orange-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group"
-        >
-          <div class="p-3 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl mb-3 inline-flex">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <p class="font-semibold text-gray-900 dark:text-gray-100 text-sm transition-colors duration-300">Calendrier</p>
-        </button>
-      </div>
-    </div>
-
-    <!-- Par matière -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
-      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2 transition-colors duration-300">
-        <svg class="w-6 h-6" :class="theme.text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-        Devoirs par matière
-      </h2>
-      
-      <div v-if="subjects.length === 0" class="text-center py-8">
-        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
-        <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">Aucune matière</p>
-        <button
-          @click="navigateTo('/subjects')"
-          :class="`mt-4 px-6 py-3 bg-gradient-to-r ${theme.gradient} text-white rounded-xl font-semibold hover:shadow-lg transition-all`"
-        >
-          Créer une matière
-        </button>
-      </div>
-      
-      <div v-else class="grid md:grid-cols-3 gap-4">
-        <div
-          v-for="subject in subjects"
-          :key="subject.id"
-          class="p-5 rounded-xl border-2 border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200 group cursor-pointer bg-white dark:bg-gray-800/50"
-          @click="navigateTo('/assignments')"
-        >
-          <div class="flex items-center gap-3 mb-4">
-            <div :class="`w-12 h-12 rounded-xl ${getSubjectColor(subject.id)} flex items-center justify-center text-white font-bold shadow-sm`">
-              {{ getSubjectInitials(subject.id) }}
-            </div>
-            <div class="flex-1">
-              <h3 class="font-bold text-gray-900 dark:text-gray-100 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300">{{ subject.name }}</h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-300">{{ subject.teacher || 'Pas de professeur' }}</p>
-            </div>
-          </div>
-          
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-300">{{ getSubjectAssignmentsCount(subject.id) }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">devoirs</p>
-            </div>
-            <div :class="`px-3 py-1 rounded-lg text-xs font-bold ${getSubjectUrgencyBadge(subject.id)}`">
-              {{ getSubjectUrgentCount(subject.id) }} urgent{{ getSubjectUrgentCount(subject.id) > 1 ? 's' : '' }}
-            </div>
+        <!-- Bottom bar -->
+        <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p class="text-gray-400 text-sm">
+            © 2025 StudyUp. Tous droits réservés.
+          </p>
+          <div class="flex items-center gap-4">
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+              </svg>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+              </svg>
+            </a>
           </div>
         </div>
       </div>
-    </div>
+    </footer>
+
+    <!-- Scroll to top button -->
+    <transition name="fade">
+      <button
+        v-if="scrolled"
+        @click="scrollToTop"
+        class="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:scale-110 transition-transform z-40"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      </button>
+    </transition>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import ScrollProgressBar from '@/components/landing/ScrollProgressBar.vue'
+import HeroSection from '@/components/landing/HeroSection.vue'
+import ProblemSection from '@/components/landing/ProblemSection.vue'
+import FeaturesSection from '@/components/landing/FeaturesSection.vue'
+import TestimonialsSection from '@/components/landing/TestimonialsSection.vue'
+import CTASection from '@/components/landing/CTASection.vue'
 
-// Thème
-const { theme } = useTheme()
-
-// Données réactives
-const assignments = ref([])
-const subjects = ref([])
-const loading = ref(false)
-const userName = ref('')
-const motivationalQuote = ref('Bienvenue sur StudyFlow ✨') // Valeur par défaut
-
-// Salutation selon l'heure
-const greeting = computed(() => {
-  const hour = new Date().getHours()
-  if (hour < 12) return 'Bonjour'
-  if (hour < 18) return 'Bon après-midi'
-  return 'Bonsoir'
+definePageMeta({
+  layout: false,
+  ssr: true
 })
 
-// Citations motivantes
-const quotes = [
-  'Chaque petit pas compte vers ton succès 🌟',
-  'La constance mène au succès 💪',
-  'Transforme tes objectifs en réalité ✨',
-  'Aujourd\'hui est un nouveau départ 🚀',
-  'Crois en toi et tout est possible 🎯',
-  'Le succès est la somme de petits efforts répétés 📚',
-  'Ton avenir commence maintenant ⭐',
-]
-
-// Statistiques
-const stats = computed(() => {
-  const total = assignments.value.length
-  const completed = assignments.value.filter(a => a.is_completed).length
-  const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0
-  
-  // Devoirs urgents (≤ 3 jours)
-  const now = new Date()
-  const urgent = assignments.value.filter(a => {
-    if (a.is_completed) return false
-    const dueDate = new Date(a.due_date)
-    const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24))
-    return diffDays >= 0 && diffDays <= 3
-  }).length
-  
-  // Complétés cette semaine
-  const weekStart = new Date()
-  weekStart.setDate(weekStart.getDate() - weekStart.getDay())
-  weekStart.setHours(0, 0, 0, 0)
-  const completedThisWeek = assignments.value.filter(a => {
-    return a.is_completed && new Date(a.completed_at || a.updated_at) >= weekStart
-  }).length
-  
-  // Progression de la semaine (%)
-  const lastWeekCompleted = 10 // Mock pour l'instant
-  const weekProgress = lastWeekCompleted > 0 
-    ? Math.round(((completedThisWeek - lastWeekCompleted) / lastWeekCompleted) * 100) 
-    : 0
-  
-  return {
-    totalSubjects: subjects.value.length,
-    totalAssignments: total,
-    completedAssignments: completed,
-    completionRate,
-    urgent,
-    completedThisWeek,
-    weekProgress: Math.abs(weekProgress)
-  }
+// SEO Optimization
+useHead({
+  title: 'StudyUp - Planifie intelligemment, progresse sereinement',
+  meta: [
+    { name: 'description', content: 'L\'app qui aide les étudiants à gagner du temps et à rester constants dans leur travail. Synchronisation Pronote, gestion des devoirs, et outils de productivité.' },
+    { name: 'keywords', content: 'étudiant, organisation, devoirs, pronote, productivité, études, planning' },
+    // Open Graph
+    { property: 'og:title', content: 'StudyUp - Planifie intelligemment, progresse sereinement' },
+    { property: 'og:description', content: 'L\'app qui aide les étudiants à gagner du temps et à rester constants dans leur travail.' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:image', content: '/og-image.jpg' },
+    // Twitter Card
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'StudyUp - Planifie intelligemment, progresse sereinement' },
+    { name: 'twitter:description', content: 'L\'app qui aide les étudiants à gagner du temps et à rester constants dans leur travail.' },
+    // Theme color
+    { name: 'theme-color', content: '#ffffff' },
+    { name: 'theme-color', content: '#1f2937', media: '(prefers-color-scheme: dark)' }
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://studyup.com' }
+  ]
 })
 
-// Devoirs urgents (≤ 3 jours)
-const urgentAssignments = computed(() => {
-  const now = new Date()
-  return assignments.value
-    .filter(a => {
-      if (a.is_completed) return false
-      const dueDate = new Date(a.due_date)
-      const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24))
-      return diffDays >= 0 && diffDays <= 3
+// State
+const scrolled = ref(false)
+const mobileMenuOpen = ref(false)
+const isDarkMode = ref(false)
+
+// Handle scroll
+const handleScroll = () => {
+  scrolled.value = window.scrollY > 50
+}
+
+// Smooth scroll to section
+const scrollTo = (id) => {
+  const element = document.getElementById(id)
+  if (element) {
+    const offset = 80 // Account for fixed navbar
+    const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
+    const offsetPosition = elementPosition - offset
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
     })
-    .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
-    .slice(0, 5)
-})
-
-// Helpers
-const getSubjectName = (subjectId) => {
-  const subject = subjects.value.find(s => s.id === subjectId)
-  return subject ? subject.name : 'Matière inconnue'
-}
-
-const getSubjectInitials = (subjectId) => {
-  const name = getSubjectName(subjectId)
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-}
-
-const colors = ['bg-gradient-to-br from-blue-500 to-indigo-600', 'bg-gradient-to-br from-purple-500 to-pink-600', 'bg-gradient-to-br from-green-500 to-emerald-600', 'bg-gradient-to-br from-orange-500 to-amber-600', 'bg-gradient-to-br from-red-500 to-rose-600']
-const getSubjectColor = (subjectId) => {
-  return colors[subjectId % colors.length]
-}
-
-const formatDate = (date) => {
-  const d = new Date(date)
-  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-}
-
-const formatDaysLeft = (dueDate) => {
-  const now = new Date()
-  const due = new Date(dueDate)
-  const diffDays = Math.ceil((due - now) / (1000 * 60 * 60 * 24))
-  
-  if (diffDays === 0) return 'Aujourd\'hui'
-  if (diffDays === 1) return 'Demain'
-  if (diffDays < 0) return 'En retard'
-  return `Dans ${diffDays}j`
-}
-
-const getUrgencyStyle = (dueDate) => {
-  const now = new Date()
-  const due = new Date(dueDate)
-  const diffDays = Math.ceil((due - now) / (1000 * 60 * 60 * 24))
-  
-  if (diffDays < 0) return 'bg-red-100 text-red-700'
-  if (diffDays === 0) return 'bg-red-500 text-white'
-  if (diffDays === 1) return 'bg-orange-500 text-white'
-  if (diffDays <= 3) return 'bg-yellow-100 text-yellow-700'
-  return 'bg-gray-100 text-gray-700'
-}
-
-const getSubjectAssignmentsCount = (subjectId) => {
-  return assignments.value.filter(a => a.subject_id === subjectId && !a.is_completed).length
-}
-
-const getSubjectUrgentCount = (subjectId) => {
-  const now = new Date()
-  return assignments.value.filter(a => {
-    if (a.is_completed || a.subject_id !== subjectId) return false
-    const dueDate = new Date(a.due_date)
-    const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24))
-    return diffDays >= 0 && diffDays <= 3
-  }).length
-}
-
-const getSubjectUrgencyBadge = (subjectId) => {
-  const urgentCount = getSubjectUrgentCount(subjectId)
-  if (urgentCount === 0) return 'bg-green-100 text-green-700'
-  if (urgentCount >= 3) return 'bg-red-100 text-red-700'
-  return 'bg-orange-100 text-orange-700'
-}
-
-// API
-async function loadData() {
-  if (typeof window === 'undefined') return
-  const token = localStorage.getItem('token')
-  if (!token) {
-    await navigateTo('/login')
-    return
-  }
-  
-  // Charger le nom utilisateur depuis localStorage
-  try {
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
-    userName.value = user.firstname || user.username || 'Étudiant'
-  } catch (e) {
-    console.error('Error loading user:', e)
-  }
-  
-  await Promise.all([loadSubjects(), loadAssignments()])
-}
-
-async function loadSubjects() {
-  try {
-    const token = localStorage.getItem('token')
-    const response = await $fetch('/api/subjects', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    subjects.value = response.data || []
-  } catch (error) {
-    console.error('Erreur matières:', error)
   }
 }
 
-async function loadAssignments() {
-  try {
-    loading.value = true
-    const token = localStorage.getItem('token')
-    const response = await $fetch('/api/assignments', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    assignments.value = response.data || []
-  } catch (error) {
-    console.error('Erreur devoirs:', error)
-    if (error.status === 401) {
-      localStorage.removeItem('token')
-      await navigateTo('/login')
-    }
-  } finally {
-    loading.value = false
-  }
+// Smooth scroll for mobile (closes menu)
+const scrollToMobile = (id) => {
+  mobileMenuOpen.value = false
+  setTimeout(() => scrollTo(id), 300)
 }
 
-onMounted(() => {
-  nextTick(() => {
-    // Générer une citation aléatoire après le montage pour éviter les problèmes d'hydration
-    motivationalQuote.value = quotes[Math.floor(Math.random() * quotes.length)]
-    loadData()
+// Scroll to top
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
   })
+}
+
+// Toggle dark mode
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value
+  if (process.client) {
+    document.documentElement.classList.toggle('dark', isDarkMode.value)
+    localStorage.setItem('studyup-dark-mode', isDarkMode.value.toString())
+  }
+}
+
+// Initialize dark mode from localStorage
+const initDarkMode = () => {
+  if (process.client) {
+    const stored = localStorage.getItem('studyup-dark-mode')
+    isDarkMode.value = stored === 'true'
+    document.documentElement.classList.toggle('dark', isDarkMode.value)
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+  initDarkMode()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+
+// SEO Meta
+useHead({
+  title: 'StudyUp - Planifie intelligemment, progresse sereinement',
+  meta: [
+    {
+      name: 'description',
+      content: "L'app qui aide les étudiants à gagner du temps et à rester constants dans leur travail. Organisez vos cours, devoirs et sessions d'étude en toute simplicité."
+    },
+    {
+      property: 'og:title',
+      content: 'StudyUp - Planifie intelligemment, progresse sereinement'
+    },
+    {
+      property: 'og:description',
+      content: "L'app qui aide les étudiants à gagner du temps et à rester constants dans leur travail."
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    }
+  ]
 })
 </script>
+
+<style scoped>
+.landing-page {
+  scroll-behavior: smooth;
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-down-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for better aesthetics */
+.landing-page::-webkit-scrollbar {
+  width: 8px;
+}
+
+.landing-page::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.landing-page::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 4px;
+}
+
+.landing-page::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+</style>

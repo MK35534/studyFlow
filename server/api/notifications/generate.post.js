@@ -1,6 +1,5 @@
 import { getPool } from '~/lib/database'
-import { getRequestHeader } from 'h3'
-import jwt from 'jsonwebtoken'
+import { verifyToken } from '~/lib/auth'
 
 /**
  * POST /api/notifications/generate
@@ -11,29 +10,16 @@ export default defineEventHandler(async (event) => {
   let connection
 
   try {
-    // 1. Vérifier l'authentification
-    const authHeader = getRequestHeader(event, 'authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return {
-        success: false,
-        message: 'Token manquant'
-      }
-    }
+    // 1. Vérifier l'authentification via cookies ou header (throws 401 if invalid)
+    const userId = verifyToken(event)
 
-    const token = authHeader.substring(7)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'votre_secret_jwt_super_securise_2024')
-    const userId = decoded.userId // ✅ Changé de decoded.id à decoded.userId
-
-    console.log('🔑 Token décodé - userId:', userId)
-    console.log('🔑 Token décodé complet:', decoded)
+    console.log('🔑 Token validé - userId:', userId)
 
     // 2. Connexion à la base de données
     const pool = getPool()
     connection = await pool.getConnection()
 
     // 3. Récupérer tous les devoirs non complétés de l'utilisateur
-    console.log('📝 Recherche des devoirs pour user_id:', userId)
-    
     const [assignments] = await connection.query(
       `SELECT 
         a.id, 
@@ -49,16 +35,6 @@ export default defineEventHandler(async (event) => {
       ORDER BY a.due_date ASC`,
       [userId]
     )
-
-    console.log(`📊 Devoirs non complétés trouvés: ${assignments.length}`)
-    if (assignments.length > 0) {
-      console.log('Devoirs:', assignments.map(a => ({ id: a.id, title: a.title, due_date: a.due_date, user_id: a.user_id })))
-    } else {
-      // Debug: voir TOUS les devoirs sans filtre user
-      const [allAssignments] = await connection.query('SELECT id, title, user_id, is_completed FROM assignments LIMIT 5')
-      console.log('⚠️ AUCUN devoir trouvé pour user_id:', userId)
-      console.log('📋 Exemple de devoirs dans la table:', allAssignments)
-    }
 
     const now = new Date()
     const notifications = []

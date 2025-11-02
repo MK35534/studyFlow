@@ -26,7 +26,7 @@
           
           <!-- Avatar utilisateur avec gradient - cliquable -->
           <button 
-            @click="navigateTo('/profile')"
+            @click="navigateTo('/dashboard/profile')"
             :class="`w-9 h-9 rounded-xl bg-gradient-to-br ${theme.gradient} flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 active:scale-95`"
           >
             <span class="text-white text-sm font-bold">{{ userInitials }}</span>
@@ -144,10 +144,10 @@ function loadUserData() {
 const handlePaletteAction = (action, data = null) => {
   switch (action) {
     case 'new-assignment':
-      navigateTo('/assignments?new=true')
+      navigateTo('/dashboard/assignments?new=true')
       break
     case 'new-subject':
-      navigateTo('/subjects?new=true')
+      navigateTo('/dashboard/subjects?new=true')
       break
     case 'show-help':
       showHelpModal.value = true
@@ -198,18 +198,18 @@ onMounted(() => {
   })
   
   registerAction('new-assignment', () => {
-    if (route.path === '/assignments') {
+    if (route.path === '/dashboard/assignments') {
       // Déclencher l'ajout depuis la page
     } else {
-      navigateTo('/assignments?new=true')
+      navigateTo('/dashboard/assignments?new=true')
     }
   })
   
   registerAction('new-subject', () => {
-    if (route.path === '/subjects') {
+    if (route.path === '/dashboard/subjects') {
       // Déclencher l'ajout depuis la page
     } else {
-      navigateTo('/subjects?new=true')
+      navigateTo('/dashboard/subjects?new=true')
     }
   })
   

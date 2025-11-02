@@ -4,12 +4,44 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   vite: {
     plugins: [tsconfigPaths()],
+    build: {
+      cssCodeSplit: true,
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true
+        }
+      }
+    }
   },
   modules: [
     '@nuxtjs/tailwindcss',
     '@vite-pwa/nuxt'
   ],
   css: ['@/assets/css/main.css'],
+  
+  // Optimisations de performance
+  experimental: {
+    payloadExtraction: true,
+    renderJsonPayloads: true,
+    typedPages: false
+  },
+  
+  nitro: {
+    compressPublicAssets: true,
+    minify: true
+  },
+  
+  // Preload critical assets
+  app: {
+    head: {
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }
+      ]
+    }
+  },
   
   // Configuration PWA
   pwa: {
@@ -18,7 +50,7 @@ export default defineNuxtConfig({
       name: 'StudyFlow - Gestion des Devoirs',
       short_name: 'StudyFlow',
       description: 'Organisez vos cours, devoirs et révisions en toute simplicité',
-      theme_color: '#3b82f6',
+      theme_color: '#ffffff',
       background_color: '#ffffff',
       display: 'standalone',
       orientation: 'portrait',

@@ -5,8 +5,8 @@ export default defineEventHandler(async (event) => {
   try {
     console.log('=== PATCH ASSIGNMENT ===')
     
-    // Vérifier l'authentification
-    const { userId } = verifyToken(event)
+    // Vérifier l'authentification (throws 401 if invalid)
+    const userId = verifyToken(event)
     
     // Récupérer l'ID depuis l'URL
     const url = getRequestURL(event)
@@ -42,6 +42,36 @@ export default defineEventHandler(async (event) => {
         'UPDATE assignments SET is_completed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?',
         [body.is_completed, id, userId]
       )
+      
+      // Queue action for next Pronote sync
+      try {
+        // Check if this assignment is from Pronote
+        const mapping = await executeQuery(
+          'SELECT pronote_id FROM pronote_assignment_mapping WHERE local_assignment_id = ? AND user_id = ?',
+          [id, userId]
+        );
+        
+        if (mapping.length > 0) {
+          const actionType = body.is_completed ? 'mark_done' : 'mark_undone';
+          
+          // Delete any existing pending action for this assignment
+          await executeQuery(
+            'DELETE FROM pronote_pending_actions WHERE assignment_id = ? AND user_id = ? AND processed_at IS NULL',
+            [id, userId]
+          );
+          
+          // Add new pending action
+          await executeQuery(
+            'INSERT INTO pronote_pending_actions (user_id, assignment_id, action_type, pronote_id) VALUES (?, ?, ?, ?)',
+            [userId, id, actionType, mapping[0].pronote_id]
+          );
+          
+          console.log(`[Pronote Queue] Added action: ${actionType} for assignment ${id}`);
+        }
+      } catch (error) {
+        console.warn('[Pronote Queue] Failed to queue action:', error);
+        // Don't fail the whole request if queueing fails
+      }
     } 
     
     if (body.hasOwnProperty('due_date')) {

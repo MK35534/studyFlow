@@ -33,6 +33,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
+// Authentification
+const { getToken } = useAuth()
+
 // État
 const isPanelOpen = ref(false)
 const unreadCount = ref(0)
@@ -59,10 +62,10 @@ const loadUnreadCount = async () => {
     // Vérifier si on est côté client
     if (process.server) return
     
-    const token = localStorage.getItem('token')
+    const token = getToken()
     
     // Si pas de token, pas de requête
-    if (!token || token === 'null' || token === 'undefined') {
+    if (!token) {
       console.warn('⚠️ Pas de token JWT trouvé pour les notifications')
       return
     }
@@ -70,7 +73,8 @@ const loadUnreadCount = async () => {
     const response = await $fetch('/api/notifications?unread_only=true&limit=100', {
       headers: {
         'Authorization': `Bearer ${token}`
-      }
+      },
+      credentials: 'include'
     })
 
     if (response.success) {
@@ -79,12 +83,6 @@ const loadUnreadCount = async () => {
     }
   } catch (error) {
     console.error('Erreur chargement compteur notifications:', error)
-    
-    // Si erreur JWT, vider le token corrompu
-    if (error.message?.includes('jwt') || error.message?.includes('malformed')) {
-      console.warn('⚠️ Token JWT invalide, nettoyage...')
-      localStorage.removeItem('token')
-    }
   }
 }
 
@@ -99,15 +97,13 @@ const checkForUrgent = (notifications = null) => {
 let refreshInterval = null
 
 onMounted(() => {
-  // Attendre un peu avant le premier chargement (laisser le temps au token de se charger)
-  setTimeout(() => {
-    loadUnreadCount()
-  }, 500)
+  // Charger immédiatement le compteur
+  loadUnreadCount()
   
   // Rafraîchir le compteur régulièrement (seulement si connecté)
   refreshInterval = setInterval(() => {
-    const token = localStorage.getItem('token')
-    if (token && token !== 'null' && token !== 'undefined') {
+    const token = getToken()
+    if (token) {
       loadUnreadCount()
     }
   }, 30000) // 30 secondes

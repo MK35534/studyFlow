@@ -1,6 +1,6 @@
 <template>
   <div>
-    <NuxtLayout :name="layout">
+    <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
     
@@ -10,7 +10,6 @@
 </template>
 
 <script setup>
-import { useWindowSize } from "@vueuse/core";
 import { useTheme } from '~/composables/useTheme';
 import { onMounted, ref } from 'vue';
 
@@ -45,12 +44,6 @@ useHead({
       content: 'yes'
     }
   ]
-})
-
-const { width } = useWindowSize();
-
-const layout = computed(() => {
-  return width.value < 768 ? 'mobile' : 'desktop'
 })
 
 // État du dark mode

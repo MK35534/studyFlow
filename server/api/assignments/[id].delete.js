@@ -5,8 +5,8 @@ export default defineEventHandler(async (event) => {
   try {
     console.log('=== DELETE ASSIGNMENT ===')
     
-    // Vérifier l'authentification
-    const { userId } = verifyToken(event)
+    // Vérifier l'authentification (throws 401 if invalid)
+    const userId = verifyToken(event)
     console.log('User ID:', userId)
     
     // Récupérer l'ID depuis l'URL de façon alternative

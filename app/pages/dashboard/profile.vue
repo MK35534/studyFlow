@@ -249,6 +249,33 @@
           </form>
         </div>
 
+        <!-- Synchronisation Pronote -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 p-6 transition-colors duration-300">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+              <div :class="`p-3 bg-gradient-to-br ${theme.gradient} rounded-xl shadow-lg`">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-300">
+                Synchronisation Pronote
+              </h3>
+            </div>
+            <NuxtLink
+              to="/dashboard/pronote-settings"
+              :class="`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 ${theme.border} bg-gradient-to-r ${theme.gradientBg} hover:scale-105 transition-all text-sm font-semibold shadow-sm hover:shadow-md`"
+            >
+              <svg class="w-4 h-4" :class="theme.text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span :class="theme.text">Paramètres</span>
+            </NuxtLink>
+          </div>
+          <PronoteSync />
+        </div>
+
         <!-- Zone de danger -->
         <div class="bg-gradient-to-br from-red-50 dark:from-red-900/20 to-white dark:to-gray-800 rounded-2xl border-2 border-red-200 dark:border-red-800 p-6 transition-colors duration-300">
           <h3 class="text-xl font-bold text-red-900 dark:text-red-400 mb-2 flex items-center gap-2 transition-colors duration-300">
@@ -308,6 +335,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+
+// Désactiver SSR pour cette page (cookies côté client uniquement)
+definePageMeta({
+  ssr: false,
+  middleware: 'auth'
+})
+
+// Authentification
+const { getToken, clearToken } = useAuth()
 
 // Thème
 const { theme } = useTheme()
@@ -374,11 +410,20 @@ function resetForm() {
 
 async function loadUserData() {
   try {
-    const token = localStorage.getItem('token')
+    console.log('[Profile] 🔍 Chargement des données utilisateur...')
+    
+    // Lire le token depuis les cookies via le composable
+    const token = getToken()
+    
+    console.log('[Profile] Token récupéré:', token ? '✅ OUI' : '❌ NON')
+    
     if (!token) {
+      console.warn('[Profile] ⚠️ Pas de token, redirection vers /login')
       await navigateTo('/login')
       return
     }
+
+    console.log('[Profile] ✅ Token valide, chargement du profil...')
 
     // Charger depuis localStorage (temporaire)
     const userData = JSON.parse(localStorage.getItem('user') || '{}')
@@ -400,7 +445,8 @@ async function loadUserData() {
 
 async function loadStats() {
   try {
-    const token = localStorage.getItem('token')
+    // Lire le token depuis les cookies via le composable
+    const token = getToken()
     
     // Charger les devoirs
     const assignmentsRes = await $fetch('/api/assignments', {
@@ -497,8 +543,7 @@ async function deleteAccount() {
     success('Compte supprimé')
     
     // Déconnexion
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    clearToken()
     
     await navigateTo('/login')
   } catch (err) {

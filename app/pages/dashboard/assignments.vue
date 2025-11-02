@@ -68,7 +68,7 @@
           <p class="text-base font-semibold text-yellow-900 mb-1">Créez d'abord vos matières</p>
           <p class="text-sm text-yellow-700">
             Tu dois créer des matières pour pouvoir ajouter des devoirs.
-            <NuxtLink to="/subjects" class="font-bold underline hover:text-yellow-800 ml-1">
+            <NuxtLink to="/dashboard/subjects" class="font-bold underline hover:text-yellow-800 ml-1">
               Créer mes matières →
             </NuxtLink>
           </p>
@@ -142,7 +142,7 @@
 
           <!-- Section Tags -->
           <div>
-            <TagSelector v-model="newAssignment.tags" @manage-tags="navigateTo('/subjects')" />
+            <TagSelector v-model="newAssignment.tags" @manage-tags="navigateTo('/dashboard/subjects')" />
           </div>
 
           <div class="flex flex-col sm:flex-row gap-3 pt-2">
@@ -166,17 +166,19 @@
       </div>
     </div>
 
-    <!-- Filtres modernes -->
-    <div class="no-swipe flex gap-3 mb-6 overflow-x-auto pb-2">
-      <button
-        @click="currentFilter = 'all'"
-        :class="[
-          'px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap',
-          currentFilter === 'all'
-            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
-            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
-        ]"
-      >
+    <!-- Filtres et vue -->
+    <div class="flex flex-col md:flex-row gap-4 mb-6">
+      <!-- Filtres -->
+      <div class="no-swipe flex gap-3 overflow-x-auto pb-2 flex-1">
+        <button
+          @click="currentFilter = 'all'"
+          :class="[
+            'px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap',
+            currentFilter === 'all'
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
+              : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+          ]"
+        >
         <span class="flex items-center gap-2">
           Tous
           <span class="px-2 py-0.5 bg-white/20 rounded-lg text-xs">{{ assignments.length }}</span>
@@ -210,6 +212,39 @@
           <span class="px-2 py-0.5 bg-white/20 rounded-lg text-xs">{{ completedAssignments.length }}</span>
         </span>
       </button>
+      </div>
+
+      <!-- Toggle Vue Liste/Semaine -->
+      <div class="no-swipe flex bg-white dark:bg-gray-800 rounded-xl p-1.5 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+        <button
+          @click="currentView = 'list'"
+          :class="[
+            'px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2',
+            currentView === 'list'
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+          ]"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <span class="hidden md:inline">Liste</span>
+        </button>
+        <button
+          @click="currentView = 'week'"
+          :class="[
+            'px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center gap-2',
+            currentView === 'week'
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+          ]"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span class="hidden md:inline">Semaine</span>
+        </button>
+      </div>
     </div>
 
     <!-- Loading -->
@@ -218,8 +253,8 @@
       <p class="text-gray-500 dark:text-gray-400 font-medium transition-colors duration-300">Chargement des devoirs...</p>
     </div>
 
-    <!-- Liste des devoirs - Design moderne -->
-    <div v-else-if="filteredAssignments.length > 0" class="space-y-4">
+    <!-- Vue Liste -->
+    <div v-if="currentView === 'list' && filteredAssignments.length > 0" class="space-y-4">
       <div
         v-for="(assignment, index) in filteredAssignments" 
         :key="assignment.id"
@@ -337,6 +372,73 @@
       </div>
     </div>
 
+    <!-- Vue Semaine -->
+    <div v-else-if="currentView === 'week' && filteredAssignments.length > 0" class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-lg transition-colors duration-300">
+      <!-- Header semaine -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
+        <button 
+          @click="previousWeek"
+          class="p-2 hover:bg-white/10 rounded-lg transition-colors"
+        >
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h3 class="text-white font-bold text-lg">{{ weekTitle }}</h3>
+        <button 
+          @click="nextWeek"
+          class="p-2 hover:bg-white/10 rounded-lg transition-colors"
+        >
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Grille des jours -->
+      <div class="grid grid-cols-1 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
+        <div 
+          v-for="day in weekDays" 
+          :key="day.dateStr"
+          class="p-4 min-h-[150px]"
+          :class="isToday(day.date) ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''"
+        >
+          <!-- En-tête du jour -->
+          <div class="mb-3">
+            <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">{{ day.name }}</div>
+            <div 
+              class="text-lg font-bold transition-colors duration-300"
+              :class="isToday(day.date) ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'"
+            >
+              {{ day.date.getDate() }}
+            </div>
+          </div>
+
+          <!-- Devoirs du jour -->
+          <div class="space-y-2">
+            <div 
+              v-for="assignment in getAssignmentsForDate(day.dateStr)" 
+              :key="assignment.id"
+              class="p-2 rounded-lg text-xs transition-all hover:scale-105 cursor-pointer"
+              :style="{ 
+                backgroundColor: getSubjectColor(assignment.subject_id) + '20',
+                borderLeft: `3px solid ${getSubjectColor(assignment.subject_id)}`
+              }"
+              @click="selectedAssignment = assignment"
+            >
+              <div class="font-semibold truncate" :style="{ color: getSubjectColor(assignment.subject_id) }">
+                {{ getSubjectName(assignment.subject_id) }}
+              </div>
+              <div class="text-gray-700 dark:text-gray-300 truncate mt-1">{{ assignment.title }}</div>
+            </div>
+            <div v-if="getAssignmentsForDate(day.dateStr).length === 0" class="text-xs text-gray-400 dark:text-gray-600 italic">
+              Aucun devoir
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- État vide -->
     <EmptyState
       v-else
@@ -362,11 +464,23 @@
 import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { usePullToRefresh } from '~/composables/useTouchOptimizations'
 
+// Désactiver SSR
+definePageMeta({
+  ssr: false,
+  middleware: 'auth'
+})
+
+// Authentification
+const { getToken } = useAuth()
+
 const assignments = ref([])
 const subjects = ref([])
 const showAddForm = ref(false)
 const loading = ref(false)
 const currentFilter = ref('all')
+const currentView = ref('list')
+const currentWeekStart = ref(getMonday(new Date()))
+const selectedAssignment = ref(null)
 
 const newAssignment = reactive({
   title: '',
@@ -397,6 +511,32 @@ const filteredAssignments = computed(() => {
   }
 })
 
+// Computed pour vue semaine
+const weekTitle = computed(() => {
+  const end = new Date(currentWeekStart.value)
+  end.setDate(end.getDate() + 6)
+  const options = { day: 'numeric', month: 'long', year: 'numeric' }
+  return `${currentWeekStart.value.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('fr-FR', options)}`
+})
+
+const weekDays = computed(() => {
+  const days = []
+  const dayNames = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(currentWeekStart.value)
+    date.setDate(date.getDate() + i)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    days.push({
+      name: dayNames[i],
+      date: date,
+      dateStr: `${year}-${month}-${day}`
+    })
+  }
+  return days
+})
+
 // Pull-to-refresh pour mobile
 const {
   isPulling,
@@ -410,6 +550,38 @@ const {
   // Recharger les devoirs et matières
   await Promise.all([loadAssignments(), loadSubjects()])
 })
+
+// Fonctions vue semaine
+function getMonday(date) {
+  const d = new Date(date)
+  const day = d.getDay()
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1)
+  return new Date(d.setDate(diff))
+}
+
+function previousWeek() {
+  const newDate = new Date(currentWeekStart.value)
+  newDate.setDate(newDate.getDate() - 7)
+  currentWeekStart.value = newDate
+}
+
+function nextWeek() {
+  const newDate = new Date(currentWeekStart.value)
+  newDate.setDate(newDate.getDate() + 7)
+  currentWeekStart.value = newDate
+}
+
+function isToday(date) {
+  const today = new Date()
+  return date.toDateString() === today.toDateString()
+}
+
+function getAssignmentsForDate(dateStr) {
+  return filteredAssignments.value.filter(a => {
+    const assignmentDate = a.due_date.split('T')[0] || a.due_date
+    return assignmentDate === dateStr
+  })
+}
 
 function getSubjectName(subjectId) {
   const subject = subjects.value.find(s => s.id === subjectId)
@@ -481,7 +653,7 @@ async function loadSubjects() {
   try {
     if (typeof window === 'undefined') return
     
-    const token = localStorage.getItem('token')
+    const token = getToken()
     if (!token) {
       await navigateTo('/login')
       return
@@ -502,7 +674,7 @@ async function loadAssignments() {
     if (typeof window === 'undefined') return
     loading.value = true
     
-    const token = localStorage.getItem('token')
+    const token = getToken()
     if (!token) {
       await navigateTo('/login')
       return
@@ -539,7 +711,7 @@ async function addAssignment() {
   
   try {
     loading.value = true
-    const token = localStorage.getItem('token')
+    const token = getToken()
     
     const response = await $fetch('/api/assignments', {
       method: 'POST',
@@ -639,7 +811,7 @@ async function addAssignment() {
 async function toggleAssignment(assignment) {
   try {
     loading.value = true
-    const token = localStorage.getItem('token')
+    const token = getToken()
     
     const response = await $fetch(`/api/assignments/${assignment.id}`, {
       method: 'PATCH',
@@ -666,7 +838,7 @@ async function deleteAssignment(id) {
   
   try {
     loading.value = true
-    const token = localStorage.getItem('token')
+    const token = getToken()
     
     await $fetch(`/api/assignments/${id}`, {
       method: 'DELETE',

@@ -138,7 +138,7 @@ const commands = computed(() => {
       iconBg: 'bg-blue-100',
       iconColor: 'text-blue-600',
       shortcut: 'H',
-      action: () => navigateTo('/')
+      action: () => navigateTo('/dashboard')
     },
     {
       id: 'nav-assignments',
@@ -149,7 +149,7 @@ const commands = computed(() => {
       iconBg: 'bg-green-100',
       iconColor: 'text-green-600',
       shortcut: 'D',
-      action: () => navigateTo('/assignments')
+      action: () => navigateTo('/dashboard/assignments')
     },
     {
       id: 'nav-subjects',
@@ -160,7 +160,7 @@ const commands = computed(() => {
       iconBg: 'bg-purple-100',
       iconColor: 'text-purple-600',
       shortcut: 'M',
-      action: () => navigateTo('/subjects')
+      action: () => navigateTo('/dashboard/subjects')
     },
     {
       id: 'nav-calendar',
@@ -171,7 +171,7 @@ const commands = computed(() => {
       iconBg: 'bg-orange-100',
       iconColor: 'text-orange-600',
       shortcut: 'C',
-      action: () => navigateTo('/calendar')
+      action: () => navigateTo('/dashboard/life-calendar')
     },
     
     // Actions

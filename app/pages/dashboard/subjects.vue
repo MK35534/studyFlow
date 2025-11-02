@@ -282,6 +282,15 @@
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue'
 
+// Désactiver SSR
+definePageMeta({
+  ssr: false,
+  middleware: 'auth'
+})
+
+// Authentification
+const { getToken } = useAuth()
+
 const { theme } = useTheme()
 const { success, error } = useToast()
 
@@ -375,7 +384,7 @@ const saveSubject = async () => {
   
   try {
     loading.value = true
-    const token = localStorage.getItem('token')
+    const token = getToken()
     
     const payload = {
       name: subjectForm.name.trim(),
@@ -415,7 +424,7 @@ const deleteSubject = async (id) => {
   
   try {
     loading.value = true
-    const token = localStorage.getItem('token')
+    const token = getToken()
     
     await $fetch(`/api/subjects/${id}`, {
       method: 'DELETE',
@@ -435,7 +444,7 @@ const deleteSubject = async (id) => {
 const loadSubjects = async () => {
   try {
     loading.value = true
-    const token = localStorage.getItem('token')
+    const token = getToken()
     
     const response = await $fetch('/api/subjects', {
       headers: { Authorization: `Bearer ${token}` }
@@ -454,7 +463,7 @@ const loadSubjects = async () => {
 
 const loadAssignments = async () => {
   try {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     const response = await $fetch('/api/assignments', {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -466,7 +475,7 @@ const loadAssignments = async () => {
 
 onMounted(() => {
   nextTick(async () => {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     if (!token) {
       await navigateTo('/login')
       return
@@ -475,3 +484,4 @@ onMounted(() => {
   })
 })
 </script>
+

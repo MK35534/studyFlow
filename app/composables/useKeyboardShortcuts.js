@@ -5,10 +5,10 @@ export const useKeyboardShortcuts = () => {
   // Raccourcis globaux
   const globalShortcuts = {
     // Navigation
-    'h': () => navigateTo('/'),              // Home/Dashboard  
-    'd': () => navigateTo('/assignments'),   // Devoirs
-    'm': () => navigateTo('/subjects'),      // Matières
-    'c': () => navigateTo('/calendar'),      // Calendrier
+    'h': () => navigateTo('/dashboard'),              // Home/Dashboard  
+    'd': () => navigateTo('/dashboard/assignments'),   // Devoirs
+    'm': () => navigateTo('/dashboard/subjects'),      // Matières
+    // 'c': () => navigateTo('/dashboard/life-calendar'),      // Calendrier (désactivé temporairement)
     
     // Actions rapides
     'n': () => triggerAction('new-assignment'), // Nouveau devoir

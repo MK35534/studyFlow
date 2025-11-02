@@ -6,6 +6,9 @@ const unreadCount = ref(0)
 const loading = ref(false)
 
 export const useNotifications = () => {
+  // Utiliser le composable d'authentification
+  const { getToken } = useAuth()
+
   /**
    * Charger les notifications de l'utilisateur
    */
@@ -13,7 +16,7 @@ export const useNotifications = () => {
     loading.value = true
 
     try {
-      const token = localStorage.getItem('token')
+      const token = getToken()
       if (!token) {
         console.warn('Pas de token trouvé')
         return { success: false, message: 'Non authentifié' }
@@ -26,7 +29,8 @@ export const useNotifications = () => {
       const response = await $fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        credentials: 'include' // Envoyer les cookies
       })
 
       if (response.success) {
@@ -50,12 +54,13 @@ export const useNotifications = () => {
    */
   const toggleRead = async (notificationId, isRead = true) => {
     try {
-      const token = localStorage.getItem('token')
+      const token = getToken()
       const response = await $fetch(`/api/notifications/${notificationId}/read`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`
         },
+        credentials: 'include',
         body: { is_read: isRead }
       })
 
@@ -83,12 +88,13 @@ export const useNotifications = () => {
    */
   const markAllAsRead = async () => {
     try {
-      const token = localStorage.getItem('token')
+      const token = getToken()
       const response = await $fetch('/api/notifications/mark-all-read', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        credentials: 'include'
       })
 
       if (response.success) {
@@ -111,12 +117,13 @@ export const useNotifications = () => {
    */
   const deleteNotification = async (notificationId) => {
     try {
-      const token = localStorage.getItem('token')
+      const token = getToken()
       const response = await $fetch(`/api/notifications/${notificationId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        credentials: 'include'
       })
 
       if (response.success) {
@@ -143,12 +150,13 @@ export const useNotifications = () => {
    */
   const clearAll = async (readOnly = false) => {
     try {
-      const token = localStorage.getItem('token')
+      const token = getToken()
       const response = await $fetch('/api/notifications/clear-all', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
         },
+        credentials: 'include',
         body: { read_only: readOnly }
       })
 
@@ -177,12 +185,13 @@ export const useNotifications = () => {
    */
   const generateNotifications = async () => {
     try {
-      const token = localStorage.getItem('token')
+      const token = getToken()
       const response = await $fetch('/api/notifications/generate', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        credentials: 'include'
       })
 
       if (response.success) {
@@ -204,11 +213,12 @@ export const useNotifications = () => {
    */
   const getUnreadCount = async () => {
     try {
-      const token = localStorage.getItem('token')
+      const token = getToken()
       const response = await $fetch('/api/notifications?unread_only=true&limit=1', {
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        credentials: 'include'
       })
 
       if (response.success) {
@@ -240,3 +250,4 @@ export const useNotifications = () => {
     getUnreadCount
   }
 }
+

@@ -171,7 +171,7 @@ async function register() {
       localStorage.setItem('user', JSON.stringify(response.user))
       
       // Redirection vers le dashboard
-      await navigateTo('/')
+      await navigateTo('/dashboard')
     }
   } catch (err) {
     console.error('Erreur inscription:', err)

@@ -85,11 +85,15 @@ const form = reactive({
 async function login() {
   if (loading.value) return
   
+  console.log('🔵 Début de la fonction login')
+  console.log('📧 Email:', form.email)
+  console.log('🔐 Password présent:', !!form.password)
+  
   try {
     loading.value = true
     error.value = ''
     
-    console.log('Tentative de connexion:', form.email)
+    console.log('🚀 Envoi de la requête à /api/auth/login')
     
     const response = await $fetch('/api/auth/login', {
       method: 'POST',
@@ -99,21 +103,32 @@ async function login() {
       }
     })
     
-    console.log('Réponse login:', response)
+    console.log('✅ Réponse reçue:', response)
     
     if (response.success) {
-      // Stockage du token (temporairement en localStorage)
-      localStorage.setItem('token', response.token)
+      console.log('🎉 Connexion réussie, stockage des données')
+      
+      // Stockage du token JWT
+      localStorage.setItem('jwt_token', response.token)
+      
+      // Stockage des infos utilisateur
       localStorage.setItem('user', JSON.stringify(response.user))
       
+      console.log('➡️ Redirection vers /dashboard')
       // Redirection vers le dashboard
-      await navigateTo('/')
+      await navigateTo('/dashboard')
+    } else {
+      console.warn('⚠️ Response.success est false')
+      error.value = 'Erreur de connexion'
     }
   } catch (err) {
-    console.error('Erreur login:', err)
-    error.value = err.data?.message || 'Erreur de connexion'
+    console.error('❌ Erreur login:', err)
+    console.error('❌ Error data:', err.data)
+    console.error('❌ Error message:', err.message)
+    error.value = err.data?.message || err.message || 'Erreur de connexion'
   } finally {
     loading.value = false
+    console.log('🏁 Fin de la fonction login, loading:', loading.value)
   }
 }
 </script>

@@ -11,7 +11,7 @@
         <!-- Navigation moderne -->
         <nav class="space-y-1.5">
           <NuxtLink 
-            to="/" 
+            to="/dashboard" 
             :class="[
               'flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-105 group',
               isActive('/') 
@@ -26,10 +26,10 @@
           </NuxtLink>
           
           <NuxtLink 
-            to="/subjects" 
+            to="/dashboard/subjects" 
             :class="[
               'flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-105 group',
-              isActive('/subjects') 
+              isActive('/dashboard/subjects') 
                 ? `bg-gradient-to-r ${theme.gradient} text-white shadow-lg ${theme.shadow}` 
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
             ]"
@@ -41,10 +41,10 @@
           </NuxtLink>
           
           <NuxtLink 
-            to="/assignments" 
+            to="/dashboard/assignments" 
             :class="[
               'flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-105 group',
-              isActive('/assignments') 
+              isActive('/dashboard/assignments') 
                 ? `bg-gradient-to-r ${theme.gradient} text-white shadow-lg ${theme.shadow}` 
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
             ]"
@@ -55,26 +55,23 @@
             <span class="font-semibold">Devoirs</span>
           </NuxtLink>
 
-          <NuxtLink 
-            to="/calendar" 
-            :class="[
-              'flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-105 group',
-              isActive('/calendar') 
-                ? `bg-gradient-to-r ${theme.gradient} text-white shadow-lg ${theme.shadow}` 
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-            ]"
+          <div 
+            class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 group relative opacity-50 cursor-not-allowed"
           >
-            <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span class="font-semibold">Calendrier</span>
-          </NuxtLink>
+            <div class="flex-1">
+              <span class="font-semibold text-gray-700 dark:text-gray-300">Life Calendar</span>
+              <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">Bientôt disponible</span>
+            </div>
+          </div>
 
           <NuxtLink 
-            to="/focus" 
+            to="/dashboard/focus" 
             :class="[
               'flex items-center px-4 py-3 rounded-xl transition-all duration-200 hover:scale-105 group',
-              isActive('/focus') 
+              isActive('/dashboard/focus') 
                 ? `bg-gradient-to-r ${theme.gradient} text-white shadow-lg ${theme.shadow}` 
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
             ]"
@@ -110,7 +107,7 @@
       <!-- User section moderne en bas -->
       <div class="absolute bottom-0 left-0 right-0 p-4 border-t-2 border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/95 backdrop-blur-sm transition-colors duration-300">
         <button 
-          @click="navigateTo('/profile')"
+          @click="navigateTo('/dashboard/profile')"
           class="flex items-center w-full p-2 rounded-xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105 group"
         >
           <div class="flex items-center flex-1 min-w-0">
@@ -209,16 +206,16 @@ onMounted(() => {
       // Cette logique sera implémentée dans la page
     } else {
       // Sinon, rediriger vers la page devoirs
-      navigateTo('/assignments?new=true')
+      navigateTo('/dashboard/assignments?new=true')
     }
   })
   
   registerAction('new-subject', () => {
     const route = useRoute()
-    if (route.path === '/subjects') {
+    if (route.path === '/dashboard/subjects') {
       // Si on est sur la page matières, déclencher l'ajout
     } else {
-      navigateTo('/subjects?new=true')
+      navigateTo('/dashboard/subjects?new=true')
     }
   })
 })
@@ -227,10 +224,10 @@ onMounted(() => {
 const handlePaletteAction = (action, data = null) => {
   switch (action) {
     case 'new-assignment':
-      navigateTo('/assignments?new=true')
+      navigateTo('/dashboard/assignments?new=true')
       break
     case 'new-subject':
-      navigateTo('/subjects?new=true')
+      navigateTo('/dashboard/subjects?new=true')
       break
     case 'show-help':
       showHelpModal.value = true
