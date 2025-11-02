@@ -291,6 +291,15 @@ const productivityTips = [
 const currentTip = computed(() => productivityTips[currentTipIndex.value])
 
 const todayStats = computed(() => {
+  // Ne pas accéder à localStorage pendant SSR
+  if (process.server) {
+    return {
+      sessions: 0,
+      focusMinutes: 0,
+      streak: 0
+    }
+  }
+  
   const today = new Date().toDateString()
   const saved = localStorage.getItem(`focus-stats-${today}`)
   
@@ -313,7 +322,7 @@ const todayStats = computed(() => {
 // Méthodes
 const loadAssignments = async () => {
   try {
-    if (typeof window === 'undefined') return
+    if (process.server) return // Ne pas exécuter côté serveur
     
     loadingAssignments.value = true
     
@@ -363,11 +372,15 @@ const handleSessionComplete = async (session) => {
   }
   
   // Sauvegarder l'historique
-  const today = new Date().toDateString()
-  localStorage.setItem(`focus-history-${today}`, JSON.stringify(sessionHistory.value))
+  if (process.client) {
+    const today = new Date().toDateString()
+    localStorage.setItem(`focus-history-${today}`, JSON.stringify(sessionHistory.value))
+  }
   
   // Sauvegarder dans la base de données
   try {
+    if (process.server) return
+    
     const token = localStorage.getItem('token')
     if (!token) return
     
@@ -407,6 +420,8 @@ const nextTip = () => {
 }
 
 const loadSessionHistory = () => {
+  if (process.server) return // Ne pas accéder à localStorage côté serveur
+  
   const today = new Date().toDateString()
   const saved = localStorage.getItem(`focus-history-${today}`)
   
@@ -418,7 +433,7 @@ const loadSessionHistory = () => {
 // Lifecycle
 onMounted(() => {
   // Vérifier l'authentification avant tout
-  if (typeof window !== 'undefined') {
+  if (process.client) {
     const token = localStorage.getItem('token')
     if (!token) {
       navigateTo('/login')
@@ -430,21 +445,23 @@ onMounted(() => {
   loadSessionHistory()
   
   // Charger les paramètres sauvegardés
-  const savedSettings = localStorage.getItem('focus-settings')
-  if (savedSettings) {
-    settings.value = { ...settings.value, ...JSON.parse(savedSettings) }
+  if (process.client) {
+    const savedSettings = localStorage.getItem('focus-settings')
+    if (savedSettings) {
+      settings.value = { ...settings.value, ...JSON.parse(savedSettings) }
+    }
+    
+    // Afficher le guide à la première visite
+    const hasSeenGuide = localStorage.getItem('focus-guide-seen')
+    if (!hasSeenGuide) {
+      showGuide.value = true
+      localStorage.setItem('focus-guide-seen', 'true')
+    }
+    
+    // Sauvegarder les paramètres à chaque changement
+    watch(settings, (newSettings) => {
+      localStorage.setItem('focus-settings', JSON.stringify(newSettings))
+    }, { deep: true })
   }
-  
-  // Afficher le guide à la première visite
-  const hasSeenGuide = localStorage.getItem('focus-guide-seen')
-  if (!hasSeenGuide) {
-    showGuide.value = true
-    localStorage.setItem('focus-guide-seen', 'true')
-  }
-  
-  // Sauvegarder les paramètres à chaque changement
-  watch(settings, (newSettings) => {
-    localStorage.setItem('focus-settings', JSON.stringify(newSettings))
-  }, { deep: true })
 })
 </script>

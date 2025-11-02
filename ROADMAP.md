@@ -1,13 +1,13 @@
 # 🗺️ Roadmap – Projet StudyFlow
 
 > **Dernière mise à jour :** 18 octobre 2025  
-> **État actuel :** Priority 7 terminée ✅
+> **État actuel :** Priority 8 (Mobile UX & PWA) terminée ✅
 
 ---
 
 ## 📊 Vue d'ensemble
 
-### ✅ Complété (Priorities 1-7)
+### ✅ Complété (Priorities 1-8)
 
 **Priority 1 : Corrections bugs critiques**
 - ✅ Erreurs hydration (HTML validation, SSR quote, Teleport modal)
@@ -119,105 +119,51 @@
 
 ---
 
-## 🚀 Prochaines étapes (Priorities 8+)
+**Priority 8 : Mobile UX & PWA** 📱 ✅ 100%
+**Objectif :** Optimisation complète mobile et Progressive Web App
 
-### **Priority 8 : Mobile Layout finalisé** 📱
-**Objectif :** Optimiser complètement l'expérience mobile
+**PWA Implementation :**
+- ✅ Manifest `manifest.webmanifest` avec 10 icônes (72px-512px + maskable)
+- ✅ Meta tags PWA dans `app.vue` (theme-color, apple-mobile-web-app)
+- ✅ Installation réussie sur mobile ✅
+- ✅ Service worker via `@vite-pwa/nuxt`
 
-**Étapes :**
-1. **Créer `BottomNavigation.vue`** :
-   - 5 tabs : Home, Matières, Devoirs, Focus, Profil
-   - Icônes + labels
-   - Active state avec animation
-   - Fixed bottom avec safe-area
+**Mobile Layout & Navigation :**
+- ✅ Bottom Navigation moderne avec 5 tabs (Home, Subjects, Assignments, Calendar, Focus)
+- ✅ Active states avec gradients et animations
+- ✅ Fixed positioning avec safe-area iOS/Android
+- ✅ Swipe gestures pour navigation horizontale (`useSwipeGestures.js`)
+- ✅ Anti double-tap (300ms delay entre touches)
+- ✅ Protection `.no-swipe` sur éléments interactifs
 
-2. **Composant `SafeArea.vue`** :
-   - Gère les notch iPhone/Android
-   - Padding dynamique top/bottom
-   - Wrapper pour toutes les pages
+**Calendar Mobile :**
+- ✅ Modal jour modernisé avec design gradient purple/pink
+- ✅ Poignée de drag iOS-style
+- ✅ Padding `pb-32` pour éviter bottom navbar
+- ✅ Coins arrondis `rounded-3xl` harmonieux
+- ✅ Badges colorés pour matières avec transparence
+- ✅ Checkmarks animés pour devoirs complétés
+- ✅ Empty state avec CTA "Ajouter un devoir"
+- ✅ Hover/active animations (scale, shadow)
 
-3. **Améliorer `mobile.vue` layout** :
-   - Header collapsible (scroll up → hide)
-   - Bottom nav toujours visible
-   - Gestion des modals (fullscreen sur mobile)
+**SSR Fixes :**
+- ✅ Protection `localStorage` avec `process.server` dans `/focus`
+- ✅ Protection `localStorage` dans `/calendar`
+- ✅ Corrections balises HTML mal fermées
+- ✅ Tous les computed et fonctions protégés contre SSR
 
-4. **Swipe gestures** :
-   - Swipe left/right pour naviguer entre pages
-   - Pull-to-refresh sur les listes
-   - Swipe-to-delete sur cartes
+**UX Improvements :**
+- ✅ Overflow-x-hidden sur containers
+- ✅ Modal détail devoir adapté (pb-20, max-h-85vh)
+- ✅ Touch feedback sur toutes les interactions
+- ✅ Animations slide-in/fade-in
+- ✅ Backdrop blur sur modals
 
-5. **Touch optimizations** :
-   - Zones de touch plus grandes (min 44px)
-   - Feedback visuel au tap (ripple effect)
-   - Prévenir double-tap zoom
-
-**Fichiers à créer :**
-- `app/components/BottomNavigation.vue`
-- `app/components/SafeArea.vue`
-- `app/composables/useSwipeGestures.js`
-
-**Fichiers à modifier :**
-- `app/layouts/mobile.vue`
-- Toutes les pages (wrapper SafeArea)
-
-**Temps estimé :** 3-4h
-
----
-
-### **Priority 8 : PWA & Offline** 📲
-**Objectif :** Transformer en Progressive Web App installable
-
-**Étapes :**
-1. **Configuration Nuxt PWA** :
-   ```bash
-   npm install @vite-pwa/nuxt
-   ```
-
-2. **Fichier `nuxt.config.ts`** :
-   ```typescript
-   modules: ['@vite-pwa/nuxt'],
-   pwa: {
-     manifest: {
-       name: 'StudyFlow',
-       short_name: 'StudyFlow',
-       description: 'Organisation scolaire intelligente',
-       theme_color: '#3b82f6',
-       icons: [...]
-     },
-     workbox: {
-       navigateFallback: '/',
-       runtimeCaching: [...]
-     }
-   }
-   ```
-
-3. **Service Worker** :
-   - Cache des assets statiques
-   - Cache des API responses
-   - Offline fallback
-
-4. **Icônes PWA** :
-   - 192x192, 512x512 PNG
-   - Maskable icons pour Android
-   - Apple touch icons
-
-5. **Installation prompt** :
-   - Bannière "Installer l'app"
-   - Bouton dans profile.vue
-   - Détection A2HS (Add to Home Screen)
-
-**Fichiers à créer :**
-- `public/icons/` (toutes les tailles)
-- `public/manifest.json`
-- Service worker (auto-généré)
-
-**Fichiers à modifier :**
-- `nuxt.config.ts`
-- `app/pages/profile.vue`
-
-**Temps estimé :** 2-3h
+**Temps réalisé :** ~4h
 
 ---
+
+## 🚀 Prochaines étapes (Priorities 9+)
 
 ### **Priority 9 : Synchronisation Pronote** 🔄
 **Objectif :** Importer automatiquement les devoirs depuis Pronote

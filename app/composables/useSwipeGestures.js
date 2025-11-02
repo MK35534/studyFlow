@@ -28,6 +28,7 @@ export const useSwipeGestures = (options = {}) => {
   const touchEndX = ref(0)
   const touchEndY = ref(0)
   const touchStartTime = ref(0)
+  const lastTouchEndTime = ref(0) // Timestamp du dernier touchend pour détecter double-tap
   const isSwiping = ref(false)
 
   // Routes disponibles pour navigation horizontale
@@ -104,6 +105,13 @@ export const useSwipeGestures = (options = {}) => {
       return
     }
 
+    // Si l'utilisateur retouche l'écran < 300ms après le dernier touchend,
+    // c'est un double-tap/tap rapide, on ignore le swipe
+    const timeSinceLastTouch = Date.now() - lastTouchEndTime.value
+    if (timeSinceLastTouch < 300) {
+      return
+    }
+
     touchStartX.value = e.touches[0].clientX
     touchStartY.value = e.touches[0].clientY
     touchStartTime.value = Date.now()
@@ -139,6 +147,7 @@ export const useSwipeGestures = (options = {}) => {
     const touchDuration = Date.now() - touchStartTime.value
     if (touchDuration < 120) { // Moins de 120ms = clic rapide, pas un swipe
       isSwiping.value = false
+      lastTouchEndTime.value = Date.now() // Mémoriser le moment du touchend
       return
     }
 
@@ -164,6 +173,7 @@ export const useSwipeGestures = (options = {}) => {
 
     // Reset
     isSwiping.value = false
+    lastTouchEndTime.value = Date.now() // Mémoriser le moment du touchend
     touchStartX.value = 0
     touchStartY.value = 0
     touchEndX.value = 0
