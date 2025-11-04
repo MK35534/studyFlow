@@ -1,7 +1,7 @@
 {
-  "name": "StudyFlow - Gestion des Devoirs",
-  "short_name": "StudyFlow",
-  "description": "Organisez vos cours, devoirs et révisions en toute simplicité",
+  "name": "StudyUp - Assistant de productivité",
+  "short_name": "StudyUp",
+  "description": "Organisez votre temps, devoirs et révisions en toute simplicité",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
